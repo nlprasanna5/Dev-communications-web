@@ -10,6 +10,7 @@ function Login() {
   const [password, setPassword] = useState("Prasanna@123");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [error,setError]= useState("")
 
   const onSubmitLogin = async (e) => {
     e.preventDefault();
@@ -28,7 +29,10 @@ function Login() {
       dispatch(addUser(result?.data));
       navigate("/")
     } catch (err) {
-      console.err(err);
+      console.log("login",err);
+      
+      setError(err?.response?.data?.message || "Something went wrong")
+      console.error("hello",err?.response);
     }
   };
 
@@ -115,6 +119,8 @@ function Login() {
               </p>
             </fieldset>
           </div>
+
+          <p className="text-red-500">{error}</p>
 
           <div className="card-actions justify-center mt-4">
             <button className="btn btn-primary" onClick={onSubmitLogin}>
