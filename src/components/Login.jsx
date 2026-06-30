@@ -6,7 +6,7 @@ import { addUser } from "../utils/userSlice";
 import { useNavigate } from "react-router";
 import { BASE_URL } from "../utils/constants";
 
-function LoginTemp() {
+function Login() {
   const [emailId, setEmailId] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
@@ -247,4 +247,4 @@ function LoginTemp() {
   );
 }
 
-export default LoginTemp;
+export default Login;

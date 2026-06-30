@@ -12,7 +12,7 @@ function Navbar() {
 
   async function handleLogout() {
     try {
-      await axios.post(`${BASE_URL}/logout`, {
+      await axios.post(`${BASE_URL}/logout`,{}, {
         withCredentials: true,
       });
       dispatch(removeUser())
