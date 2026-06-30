@@ -1,15 +1,16 @@
-function UserCard({ user }) {
-  console.log("feeduser", typeof user);
+function UserCard({ user={} }) {
+ 
+  const { firstName, lastName, photoUrl, age, gender, about } = user;
 
   return (
-    <div className="card bg-base-100 w-62 shadow-xl">
+    <div className="card h-[500px] bg-base-100 w-62 shadow-xl">
       <figure className="w-full h-[250px]">
-        <img src={user?.photoUrl} alt="Shoes"  className="h-full w-full"/>
+        <img src={photoUrl} alt="Shoes" className="h-full w-full" />
       </figure>
       <div className="card-body">
-        <h2 className="card-title">{user?.firstName + " " + user?.lastName}</h2>
-       {user?.age && user?.gender && <p>{user?.age + ", " + user?.gender}</p>}
-        <p>{user?.about}</p>
+        <h2 className="card-title">{firstName + " " + lastName}</h2>
+        {age && gender && <p>{age + ", " + gender}</p>}
+        <p>{about}</p>
         <div className="card-actions justify-center my-4">
           <button className="btn btn-primary">Ignore</button>
           <button className="btn btn-secondary">Interested</button>

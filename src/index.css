@@ -1,21 +1,58 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-  themes: dark --default, forest, luxury;
-}
+@plugin "daisyui";
 
+@plugin "daisyui/theme" {
+  name: "mytheme";
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
 
+  /* Background colors */
+  --color-base-100: #05152C; /* Main background */
+  --color-base-200: #10223A; /* Card background */
+  --color-base-300: #234156; /* Border/background variations */
+  --color-base-content: #EDEFF2; /* Main text color */
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
+ 
+  --color-primary: #484CF8;
+  --color-primary-content: #FFFFFF;
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  --color-secondary: #825AED;
+  --color-secondary-content: #FFFFFF;
+  
+  --color-accent: #37CDBE;
+  --color-accent-content: #FFFFFF;
+
+  /* Neutral */
+  --color-neutral: #3D4451;
+  --color-neutral-content: #EDEFF2;
+
+  /* Status colors */
+  --color-info: #3ABFF8;
+  --color-info-content: #FFFFFF;
+
+  --color-success: #17B278;
+  --color-success-content: #FFFFFF;
+
+  --color-warning: #EC9310;
+  --color-warning-content: #FFFFFF;
+
+  --color-error: #E23933;
+  --color-error-content: #FFFFFF;
+
+  /* Border radius */
+  --radius-selector: 1rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+
+  /* Sizes */
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  /* Border */
+  --border: 1px;
+
+  /* Effects */
+  --depth: 1;
+  --noise: 0;
 }

@@ -2,3 +2,18 @@
 
 export const BASE_URL="http://localhost:4000"
 
+export const COLORS = {
+  PRIMARY: "#484CF8",
+  SECONDARY: "#825AED",
+  SUCCESS: "#17B278",
+  DANGER: "#E23933",
+  WARNING: "#EC9310",
+
+  BACKGROUND: "#05152C",
+  CARD: "#10223A",
+  BORDER: "#12233B",
+
+  TEXT_PRIMARY: "#EDEFF2",
+  TEXT_SECONDARY: "#7D91A9",
+};
+

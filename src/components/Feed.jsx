@@ -29,7 +29,7 @@ function Feed() {
   console.log("feed", feed);
 
   return (
-    feed && (
+    feed?.length>0  && (
       <div className="flex justify-center">
         <UserCard user={feed[0] } />
       </div>
