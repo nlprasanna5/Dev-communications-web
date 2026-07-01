@@ -56,7 +56,9 @@ function EditProfile() {
           gender: formData.gender,
           about: formData.about,
           skills: formData.skills,
-          //   designation: formData.designation,
+          designation: formData.designation,
+          location: formData.location,
+          experience: formData.experience,
         },
         { withCredentials: true },
       );

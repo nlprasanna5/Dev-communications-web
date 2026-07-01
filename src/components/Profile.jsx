@@ -7,7 +7,7 @@ import {
   Presentation,
   CircleCheckBig,
   CircleX,
-  UserStar
+  UserStar,
 } from "lucide-react";
 
 import { useSelector } from "react-redux";
@@ -121,7 +121,18 @@ const connections = [
 function Profile() {
   const navigate = useNavigate();
   const user = useSelector((store) => store.user);
-  const { firstName, lastName, emailId, photoUrl, age, gender,skills,about } = user;
+  const {
+    firstName,
+    lastName,
+    emailId,
+    photoUrl,
+    age,
+    gender,
+    skills,
+    about,
+    designation,
+    location,
+  } = user;
 
   function handleEdit() {
     navigate("/profile/edit");
@@ -150,18 +161,18 @@ function Profile() {
                   {firstName} {lastName}
                 </h2>
 
-                <p className="text-secondary-content">Designation</p>
+                <p className="text-secondary-content">{designation}</p>
               </div>
 
               <div className="flex flex-wrap justify-center sm:justify-start gap-4 text-sm">
-                 <p className="text-primary-content flex items-center gap-1">
+                <p className="text-primary-content flex items-center gap-1">
                   <UserStar size={16} />
                   {gender.toUpperCase()}
                 </p>
 
                 <p className="text-primary-content flex items-center gap-1">
                   <MapPin size={16} />
-                  Location
+                  {location}
                 </p>
 
                 <p className="text-primary-content flex items-center gap-1">
@@ -206,9 +217,7 @@ function Profile() {
                 About
               </h3>
 
-              <p className="text-base-content leading-7">
-                {about}
-              </p>
+              <p className="text-base-content leading-7">{about}</p>
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="border border-base-300 rounded-md px-3 py-2 text-sm">
@@ -218,7 +227,7 @@ function Profile() {
 
                 <div className="border border-base-300 rounded-md px-3 py-2 text-sm">
                   <MapPin size={16} className="inline-block mr-2" />
-                  Location
+                  {location}
                 </div>
               </div>
             </div>
