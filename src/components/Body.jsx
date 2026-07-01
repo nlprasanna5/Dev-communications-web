@@ -1,11 +1,12 @@
 import { Outlet, useNavigate } from "react-router";
-import Navbar from "./Navbar";
 import Footer from "./Footer";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { addUser } from "../utils/userSlice";
+import Navbar from "./Navbar";
+
 
 function Body() {
   const dispatch = useDispatch();
@@ -42,7 +43,7 @@ function Body() {
     <div>
       <Navbar />
       <Outlet />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }
