@@ -5,6 +5,7 @@ import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addUser } from "../utils/userSlice";
+import Toast from "./Toast";
 
 function EditProfile() {
   const user = useSelector((store) => store.user);
