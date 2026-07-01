@@ -169,7 +169,7 @@ function ProfileView() {
 
           {/* Button */}
           <div className="self-center lg:self-start">
-            <button className="btn btn-primary w-full sm:w-auto">
+            <button className="btn btn-primary w-full sm:w-auto whitespace-nowrap">
               Edit Profile
             </button>
           </div>
