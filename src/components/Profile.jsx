@@ -13,68 +13,6 @@ import {
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 
-const links = [
-  {
-    name: "LinkedIn",
-    url: "https://www.linkedin.com/in/your-profile",
-  },
-  {
-    name: "GitHub",
-    url: "https://github.com/your-profile",
-  },
-  {
-    name: "Twitter",
-    url: "https://twitter.com/your-profile",
-  },
-];
-
-const skills = [
-  { name: "JavaScript", level: "Expert" },
-  { name: "React", level: "Expert" },
-  { name: "Node.js", level: "Intermediate" },
-  { name: "CSS", level: "Expert" },
-  { name: "HTML", level: "Expert" },
-];
-
-const experience = [
-  {
-    id: 1,
-    role: "Software Engineer",
-    company: "Tech Company",
-  },
-  {
-    id: 2,
-    role: "Frontend Developer",
-    company: "Web Agency",
-  },
-  {
-    id: 3,
-    role: "Intern",
-    company: "Startup",
-  },
-];
-
-const projects = [
-  {
-    id: 1,
-    title: "Project One",
-    description:
-      "Description for project one.Description for project one.Description for project one",
-    techStack: ["React", "Node.js"],
-  },
-  {
-    id: 2,
-    title: "Project Two",
-    description: "Description for project two.",
-    techStack: ["Vue.js", "Firebase"],
-  },
-  {
-    id: 3,
-    title: "Project Three",
-    description: "Description for project three.",
-    techStack: ["Angular", "Express"],
-  },
-];
 
 const profileStrength = [
   {
@@ -132,6 +70,10 @@ function Profile() {
     about,
     designation,
     location,
+    totalExperience,
+    socialLinks,
+    experience,
+    projects
   } = user;
 
   function handleEdit() {
@@ -167,7 +109,7 @@ function Profile() {
               <div className="flex flex-wrap justify-center sm:justify-start gap-4 text-sm">
                 <p className="text-primary-content flex items-center gap-1">
                   <UserStar size={16} />
-                  {gender.toUpperCase()}
+                  {gender?.toUpperCase()}{" - "}{age}Y
                 </p>
 
                 <p className="text-primary-content flex items-center gap-1">
@@ -177,20 +119,26 @@ function Profile() {
 
                 <p className="text-primary-content flex items-center gap-1">
                   <BriefcaseBusiness size={16} />
-                  Experience
+                  {totalExperience} years of Experience
                 </p>
               </div>
 
               <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-                {links?.map((link) => (
-                  <a
-                    key={link.name}
-                    href={link.url}
-                    className="border border-base-300 rounded-md px-3 py-2 text-xs text-secondary-content hover:bg-base-100/10 transition"
-                  >
-                    {link.url}
-                  </a>
-                ))}
+                {Object.entries(socialLinks || {}).map(([name, url]) => {
+                  if (!url) return null;
+
+                  return (
+                    <a
+                      key={name}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="border border-base-300 rounded-md px-3 py-2 text-xs text-secondary-content hover:bg-base-100/10 transition"
+                    >
+                      {url}
+                    </a>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -260,11 +208,11 @@ function Profile() {
 
               <ul className="steps steps-vertical">
                 {experience.map((exp) => (
-                  <li key={exp.id} className="step step-primary text-left">
+                  <li key={exp._id} className="step step-primary text-left">
                     <div>
                       <p className="font-semibold">{exp.role}</p>
 
-                      <p className="text-sm opacity-70">{exp.company}</p>
+                      <p className="text-sm opacity-70">{exp.company}{" ,"} {exp.duration}</p>
                     </div>
                   </li>
                 ))}
@@ -282,7 +230,7 @@ function Profile() {
             <ul className="flex flex-col gap-4">
               {projects.map((project) => (
                 <li
-                  key={project.id}
+                  key={project._id}
                   className="bg-base-200 rounded-lg p-4 flex flex-col gap-3"
                 >
                   <h4 className="font-semibold text-primary text-lg">
@@ -294,15 +242,25 @@ function Profile() {
                   </p>
 
                   <div className="flex flex-wrap gap-2">
-                    {project.techStack.map((tech) => (
+                    {project.technologies.map((tech) => (
                       <span
                         key={tech}
+
                         className="px-2 py-1 rounded border border-base-300 text-xs"
                       >
                         {tech}
                       </span>
                     ))}
                   </div>
+
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary"
+                  >
+                    View Project
+                  </a>
                 </li>
               ))}
             </ul>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Camera, User, BriefcaseBusiness } from "lucide-react";
+import { ArrowLeft, Camera, User, BriefcaseBusiness, X } from "lucide-react";
 import { useNavigate } from "react-router";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
@@ -10,11 +10,12 @@ import Toast from "./Toast";
 function EditProfile() {
   const user = useSelector((store) => store.user);
   const navigate = useNavigate();
+  const [techStackInputs, setTechStackInputs] = useState({});
   const [formData, setFormData] = useState({
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
     designation: user?.designation || "",
-    company: user?.company || "",
+    currentCompany: user?.currentCompany || "",
     location: user?.location || "",
     email: user?.email || "",
     age: user?.age || "",
@@ -29,6 +30,12 @@ function EditProfile() {
     skills: user?.skills || [],
     experience: user?.experience || [],
     projects: user?.projects || [],
+    totalExperience: user?.totalExperience || "",
+    socialLinks: {
+      github: user?.socialLinks?.github,
+      linkedin: user?.socialLinks?.linkedin,
+      portfolio: user?.socialLinks?.portfolio,
+    },
   });
 
   const [error, setError] = useState("");
@@ -37,14 +44,26 @@ function EditProfile() {
   const dispatch = useDispatch();
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+    if (name in formData.socialLinks) {
+      setFormData((prev) => ({
+        ...prev,
+        socialLinks: {
+          ...prev.socialLinks,
+          [name]: value,
+        },
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const saveProfile = async () => {
     setError("");
+    console.log("project", formData?.projects);
     try {
       const response = await axios.patch(
         BASE_URL + "/profile/edit",
@@ -59,6 +78,14 @@ function EditProfile() {
           designation: formData.designation,
           location: formData.location,
           experience: formData.experience,
+          currentCompany: formData.currentCompany,
+          totalExperience: formData.totalExperience,
+          socialLinks: {
+            github: formData.socialLinks.github,
+            linkedin: formData.socialLinks.linkedin,
+            portfolio: formData.socialLinks.portfolio,
+          },
+          projects: formData.projects,
         },
         { withCredentials: true },
       );
@@ -73,6 +100,57 @@ function EditProfile() {
       setError(err?.response?.data?.message);
     }
   };
+
+  function handleOnKeyDown(e, projectIndex) {
+  if (e.key !== "Enter" && e.key !== ",") return;
+
+  e.preventDefault();
+
+  const value = techStackInputs[projectIndex]?.trim();
+
+  if (!value) return;
+
+  setFormData((prev) => ({
+    ...prev,
+    projects: prev.projects.map((project, index) => {
+      if (index !== projectIndex) return project;
+
+      const technologies = project.technologies || [];
+
+      // Prevent duplicates
+      if (technologies.includes(value)) {
+        return project;
+      }
+
+      return {
+        ...project,
+        technologies: [...technologies, value],
+      };
+    }),
+  }));
+
+  // Clear input
+  setTechStackInputs((prev) => ({
+    ...prev,
+    [projectIndex]: "",
+  }));
+}
+
+  function handleRemoveTechnology(projectIndex, techIndex) {
+  setFormData((prev) => ({
+    ...prev,
+    projects: prev.projects.map((project, index) =>
+      index === projectIndex
+        ? {
+            ...project,
+            technologies: project.technologies.filter(
+              (_, i) => i !== techIndex
+            ),
+          }
+        : project
+    ),
+  }));
+}
 
   return (
     <main className="min-h-screen bg-base-200 px-4">
@@ -175,8 +253,19 @@ function EditProfile() {
                   type="text"
                   className="input"
                   placeholder="Type here"
-                  name="company"
-                  value={formData.company}
+                  name="currentCompany"
+                  value={formData.currentCompany}
+                  onChange={handleChange}
+                />
+              </fieldset>
+              <fieldset className="fieldset">
+                <legend className="fieldset-legend">Total Experience</legend>
+                <input
+                  type="text"
+                  className="input"
+                  placeholder="Type here"
+                  name="totalExperience"
+                  value={formData.totalExperience}
                   onChange={handleChange}
                 />
               </fieldset>
@@ -250,8 +339,8 @@ function EditProfile() {
                   type="text"
                   className="input"
                   placeholder="Type here"
-                  name="firstName"
-                  value={formData.firstName}
+                  name="github"
+                  value={formData.socialLinks.github}
                   onChange={handleChange}
                 />
               </fieldset>
@@ -262,7 +351,7 @@ function EditProfile() {
                   className="input"
                   placeholder="Type here"
                   name="linkedin"
-                  value={formData.linkedin}
+                  value={formData.socialLinks.linkedin}
                   onChange={handleChange}
                 />
               </fieldset>
@@ -273,7 +362,7 @@ function EditProfile() {
                   className="input"
                   placeholder="Type here"
                   name="portfolio"
-                  value={formData.portfolio}
+                  value={formData.socialLinks.portfolio}
                   onChange={handleChange}
                 />
               </fieldset>
@@ -283,7 +372,7 @@ function EditProfile() {
 
         {/* Skills */}
 
-        <div className="bg-base-100 border border-base-300 rounded-2xl shadow-sm p-8">
+        <div className="bg-base-100 mt-4 border border-base-300 rounded-2xl shadow-sm p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold">Skills</h2>
 
@@ -339,7 +428,7 @@ function EditProfile() {
 
         {/* Experience */}
 
-        <div className="bg-base-100 border border-base-300 rounded-2xl shadow-sm p-8">
+        <div className="bg-base-100 mt-4 border border-base-300 rounded-2xl shadow-sm p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold">Experience</h2>
 
@@ -353,6 +442,7 @@ function EditProfile() {
                     {
                       role: "",
                       company: "",
+                      duration: "",
                     },
                   ],
                 }))
@@ -374,12 +464,11 @@ function EditProfile() {
                     placeholder="Role"
                     value={exp.role}
                     onChange={(e) => {
-                      const updated = [...formData.experience];
-                      updated[index].role = e.target.value;
-
                       setFormData((prev) => ({
                         ...prev,
-                        experience: updated,
+                        experience: prev.experience.map((exp, i) =>
+                          i === index ? { ...exp, role: e.target.value } : exp,
+                        ),
                       }));
                     }}
                   />
@@ -389,12 +478,28 @@ function EditProfile() {
                     placeholder="Company"
                     value={exp.company}
                     onChange={(e) => {
-                      const updated = [...formData.experience];
-                      updated[index].company = e.target.value;
-
                       setFormData((prev) => ({
                         ...prev,
-                        experience: updated,
+                        experience: prev.experience.map((exp, i) =>
+                          i === index
+                            ? { ...exp, company: e.target.value }
+                            : exp,
+                        ),
+                      }));
+                    }}
+                  />
+                  <input
+                    className="input input-bordered"
+                    placeholder="Duration"
+                    value={exp.duration}
+                    onChange={(e) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        experience: prev.experience.map((exp, i) =>
+                          i === index
+                            ? { ...exp, duration: e.target.value }
+                            : exp,
+                        ),
                       }));
                     }}
                   />
@@ -422,7 +527,7 @@ function EditProfile() {
 
         {/* Projects */}
 
-        <div className="bg-base-100 border border-base-300 rounded-2xl shadow-sm p-8">
+        <div className="bg-base-100 mt-4 border border-base-300 rounded-2xl shadow-sm p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold">Projects</h2>
 
@@ -436,7 +541,8 @@ function EditProfile() {
                     {
                       title: "",
                       description: "",
-                      techStack: "",
+                      technologies: [],
+                      link: "",
                     },
                   ],
                 }))
@@ -458,12 +564,13 @@ function EditProfile() {
                     placeholder="Project Title"
                     value={project.title}
                     onChange={(e) => {
-                      const updated = [...formData.projects];
-                      updated[index].title = e.target.value;
-
                       setFormData((prev) => ({
                         ...prev,
-                        projects: updated,
+                        projects: prev.projects.map((project, i) =>
+                          i === index
+                            ? { ...project, title: e.target.value }
+                            : project,
+                        ),
                       }));
                     }}
                   />
@@ -473,30 +580,68 @@ function EditProfile() {
                     placeholder="Project Description"
                     value={project.description}
                     onChange={(e) => {
-                      const updated = [...formData.projects];
-                      updated[index].description = e.target.value;
-
                       setFormData((prev) => ({
                         ...prev,
-                        projects: updated,
+                        projects: prev.projects.map((project, i) =>
+                          i === index
+                            ? { ...project, description: e.target.value }
+                            : project,
+                        ),
                       }));
                     }}
                   />
 
                   <input
                     className="input input-bordered w-full"
-                    placeholder="React, Node, Mongo"
-                    value={project.techStack}
+                    placeholder="Project Link"
+                    value={project.link}
                     onChange={(e) => {
-                      const updated = [...formData.projects];
-                      updated[index].techStack = e.target.value;
-
                       setFormData((prev) => ({
                         ...prev,
-                        projects: updated,
+                        projects: prev.projects.map((project, i) =>
+                          i === index
+                            ? { ...project, link: e.target.value }
+                            : project,
+                        ),
                       }));
                     }}
                   />
+
+                  <div className="space-y-3">
+                    <input
+                      className="input input-bordered w-full"
+                      placeholder="Press Enter to add technologies"
+                      value={techStackInputs[index] || ""}
+                      onChange={(e) =>
+                        setTechStackInputs((prev) => ({
+                          ...prev,
+                          [index]: e.target.value,
+                        }))
+                      }
+                      onKeyDown={(e) => handleOnKeyDown(e, index)}
+                    />
+
+                    {/* Technology Chips */}
+                    <div className="flex flex-wrap gap-2">
+                      {project.technologies?.map((tech, techIndex) => (
+                        <div
+                          key={tech}
+                          className="badge badge-primary gap-2 px-3 py-4"
+                        >
+                          <span>{tech}</span>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleRemoveTechnology(index, techIndex)
+                            }
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
                   <button
                     className="btn btn-error btn-outline btn-sm"
