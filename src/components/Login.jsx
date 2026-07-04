@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import { useNavigate } from "react-router";
 import { BASE_URL } from "../utils/constants";
+import LoginLeftSide from "./LoginLeftSide";
 
 function Login() {
   const [emailId, setEmailId] = useState("");
@@ -41,38 +42,7 @@ function Login() {
   return (
     <main data-theme="mytheme" className="min-h-screen bg-base-100 p-6   flex">
       {/* Left Section */}
-      <aside className="flex flex-col   flex-1">
-        <div className="flex flex-col  justify-evenly h-full">
-          {/* Branding */}
-          <header className="flex flex-col text-center gap-4 ">
-            <div className="flex flex-col   ">
-              <h1 className="text-primary text-[35px]">{"</>"}</h1>
-
-              <h1 className="text-base-content text-[40px]">
-                Dev<span className="text-primary">Catchup</span>
-              </h1>
-            </div>
-
-            <div className="text-[#A9A9A9]  text-xl tracking-widest">
-              <p className="text-lg leading-6 tracking-widest">
-                Connect with developers
-              </p>
-              <p className="text-lg leading-6 tracking-widest">
-                Build your network
-              </p>
-            </div>
-          </header>
-
-          {/* Illustration */}
-          <figure className="">
-            <img
-              src={loginImage}
-              alt="Developer networking illustration"
-              className=""
-            />
-          </figure>
-        </div>
-      </aside>
+      <LoginLeftSide/>
 
       {/* Right Section */}
       <section className="flex  bg-base-200 rounded-[10px] p-4 py-8 flex-1 border border-base-300 ">
@@ -236,7 +206,9 @@ function Login() {
           <footer className="text-center">
             <p>
               Don't have an account?{" "}
-              <span className="text-secondary underline cursor-pointer">
+              <span className="text-secondary underline cursor-pointer"
+              onClick={() => navigate("/signup")}
+              >
                 Sign up
               </span>
             </p>

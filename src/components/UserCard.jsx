@@ -1,4 +1,3 @@
-
 import { BadgeCheck, MapPin, Building2, Heart, X } from "lucide-react";
 import {
   motion,
@@ -44,7 +43,7 @@ function UserCard({ user = {}, onLike, onIgnore, preview }) {
         },
       });
 
-      onLike();
+      onLike("interested", user?._id);
     } else if (info.offset.x < -140) {
       await controls.start({
         x: -1000,
@@ -52,7 +51,7 @@ function UserCard({ user = {}, onLike, onIgnore, preview }) {
         opacity: 0,
       });
 
-      onIgnore();
+      onIgnore("ignored", user?._id);
     } else {
       controls.start({
         x: 0,
@@ -64,9 +63,6 @@ function UserCard({ user = {}, onLike, onIgnore, preview }) {
       });
     }
   }
-
-  const likeOpacity = useTransform(x, [0, 120], [0, 1]);
-  const nopeOpacity = useTransform(x, [-120, 0], [1, 0]);
 
   return (
     <motion.div
@@ -124,30 +120,44 @@ function UserCard({ user = {}, onLike, onIgnore, preview }) {
             </div>
 
             {/* Designation */}
-            <p className="mt-1.5 sm:mt-2 flex items-center gap-2 text-sm sm:text-base lg:text-lg font-medium opacity-95">
-              <Building2 size={16} className="flex-shrink-0 sm:w-[18px] sm:h-[18px]" />
+            {designation && currentCompany && (
+              <p className="mt-1.5 sm:mt-2 flex items-center gap-2 text-sm sm:text-base lg:text-lg font-medium opacity-95">
+                <Building2
+                  size={16}
+                  className="flex-shrink-0 sm:w-[18px] sm:h-[18px]"
+                />
 
-              <span className="truncate">
-                {designation}
-                {currentCompany && (
-                  <span className="font-normal"> @ {currentCompany}</span>
-                )}
-              </span>
-            </p>
+                <span className="truncate">
+                  {designation}
+                  {currentCompany && (
+                    <span className="font-normal"> @ {currentCompany}</span>
+                  )}
+                </span>
+              </p>
+            )}
 
             {/* Details */}
-            <div className="mt-2 sm:mt-3 flex flex-wrap gap-x-3 sm:gap-x-5 gap-y-1.5 sm:gap-y-2 text-xs sm:text-sm opacity-90">
-              <span className="flex items-center gap-1">
-                <MapPin size={13} className="sm:w-[15px] sm:h-[15px]" />
-                {location}
-              </span>
+            {location ||
+              gender ||
+              age ||
+              (totalExperience && (
+                <div className="mt-2 sm:mt-3 flex flex-wrap gap-x-3 sm:gap-x-5 gap-y-1.5 sm:gap-y-2 text-xs sm:text-sm opacity-90">
+                  {location && (
+                    <span className="flex items-center gap-1">
+                      <MapPin size={13} className="sm:w-[15px] sm:h-[15px]" />
+                      {location}
+                    </span>
+                  )}
 
-              <span>
-                {gender} • {age} yrs
-              </span>
+                  {gender && age && (
+                    <span>
+                      {gender} • {age} yrs
+                    </span>
+                  )}
 
-              <span>{totalExperience} Experience</span>
-            </div>
+                  {totalExperience && <span>{totalExperience} Experience</span>}
+                </div>
+              ))}
 
             {/* About */}
             {about && (
@@ -181,7 +191,7 @@ function UserCard({ user = {}, onLike, onIgnore, preview }) {
         {/* Bottom Actions */}
         <div className="flex items-center justify-center gap-5 sm:gap-6 lg:gap-8 p-3.5 sm:p-4 lg:p-5 bg-base-100">
           <button
-            onClick={onIgnore}
+            onClick={() => onIgnore("ignored", user._id)}
             className="btn btn-circle btn-error w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 shadow-xl hover:scale-105 transition-transform"
           >
             <X size={22} className="sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
@@ -192,10 +202,14 @@ function UserCard({ user = {}, onLike, onIgnore, preview }) {
           </button>
 
           <button
-            onClick={onLike}
+            onClick={() => onLike("interested", user._id)}
             className="btn btn-circle btn-success w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 shadow-xl hover:scale-105 transition-transform"
           >
-            <Heart size={20} fill="white" className="sm:w-6 sm:h-6 lg:w-[26px] lg:h-[26px]" />
+            <Heart
+              size={20}
+              fill="white"
+              className="sm:w-6 sm:h-6 lg:w-[26px] lg:h-[26px]"
+            />
           </button>
         </div>
       </div>

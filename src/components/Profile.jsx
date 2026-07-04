@@ -13,7 +13,6 @@ import {
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 
-
 const profileStrength = [
   {
     title: "Projects",
@@ -73,7 +72,7 @@ function Profile() {
     totalExperience,
     socialLinks,
     experience,
-    projects
+    projects,
   } = user;
 
   function handleEdit() {
@@ -106,22 +105,35 @@ function Profile() {
                 <p className="text-secondary-content">{designation}</p>
               </div>
 
-              <div className="flex flex-wrap justify-center sm:justify-start gap-4 text-sm">
-                <p className="text-primary-content flex items-center gap-1">
-                  <UserStar size={16} />
-                  {gender?.toUpperCase()}{" - "}{age}Y
-                </p>
+              {gender ||
+                age ||
+                location ||
+                (totalExperience && (
+                  <div className="flex flex-wrap justify-center sm:justify-start gap-4 text-sm">
+                    {gender && age && (
+                      <p className="text-primary-content flex items-center gap-1">
+                        <UserStar size={16} />
+                        {gender?.toUpperCase()}
+                        {" - "}
+                        {age}Y
+                      </p>
+                    )}
 
-                <p className="text-primary-content flex items-center gap-1">
-                  <MapPin size={16} />
-                  {location}
-                </p>
+                    {location && (
+                      <p className="text-primary-content flex items-center gap-1">
+                        <MapPin size={16} />
+                        {location}
+                      </p>
+                    )}
 
-                <p className="text-primary-content flex items-center gap-1">
-                  <BriefcaseBusiness size={16} />
-                  {totalExperience} years of Experience
-                </p>
-              </div>
+                    {totalExperience && (
+                      <p className="text-primary-content flex items-center gap-1">
+                        <BriefcaseBusiness size={16} />
+                        {totalExperience} years of Experience
+                      </p>
+                    )}
+                  </div>
+                ))}
 
               <div className="flex flex-wrap justify-center sm:justify-start gap-2">
                 {Object.entries(socialLinks || {}).map(([name, url]) => {
@@ -212,7 +224,10 @@ function Profile() {
                     <div>
                       <p className="font-semibold">{exp.role}</p>
 
-                      <p className="text-sm opacity-70">{exp.company}{" ,"} {exp.duration}</p>
+                      <p className="text-sm opacity-70">
+                        {exp.company}
+                        {" ,"} {exp.duration}
+                      </p>
                     </div>
                   </li>
                 ))}
@@ -245,7 +260,6 @@ function Profile() {
                     {project.technologies.map((tech) => (
                       <span
                         key={tech}
-
                         className="px-2 py-1 rounded border border-base-300 text-xs"
                       >
                         {tech}

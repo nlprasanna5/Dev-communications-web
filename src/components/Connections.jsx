@@ -98,18 +98,26 @@ export default function ConnectionsPage() {
                     </div>
 
                     {/* Role */}
-                    <p className="text-sm text-base-content/70 mt-1">
-                      {user.designation}
-                    </p>
+                    {user?.designation && (
+                      <p className="text-sm text-base-content/70 mt-1">
+                        {user.designation}
+                      </p>
+                    )}
 
                     {/* Details */}
-                    <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs sm:text-sm text-base-content/60">
-                      <span>{user.gender?.toUpperCase()}</span>
+                    {user?.gender ||
+                      user?.age ||
+                      (user?.location && (
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs sm:text-sm text-base-content/60">
+                          {user?.gender && (
+                            <span>{user.gender?.toUpperCase()}</span>
+                          )}
 
-                      <span>{user.age} Years</span>
+                          {user?.age && <span>{user.age} Years</span>}
 
-                      {user.location && <span>📍 {user.location}</span>}
-                    </div>
+                          {user.location && <span>📍 {user.location}</span>}
+                        </div>
+                      ))}
 
                     {/* About */}
                     {user.about && (
@@ -119,22 +127,24 @@ export default function ConnectionsPage() {
                     )}
 
                     {/* Skills */}
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      {user.skills?.slice(0, 5).map((skill) => (
-                        <span
-                          key={skill}
-                          className="badge badge-outline badge-primary"
-                        >
-                          {skill}
-                        </span>
-                      ))}
+                    {user?.skills?.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {user.skills?.slice(0, 5).map((skill) => (
+                          <span
+                            key={skill}
+                            className="badge badge-outline badge-primary"
+                          >
+                            {skill}
+                          </span>
+                        ))}
 
-                      {user.skills?.length > 5 && (
-                        <span className="badge badge-neutral">
-                          +{user.skills.length - 5}
-                        </span>
-                      )}
-                    </div>
+                        {user.skills?.length > 5 && (
+                          <span className="badge badge-neutral">
+                            +{user.skills.length - 5}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 

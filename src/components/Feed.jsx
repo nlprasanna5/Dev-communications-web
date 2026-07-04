@@ -1,11 +1,9 @@
-
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addFeed } from "../utils/feedSlice";
+import { addFeed, removeUserFromFeed } from "../utils/feedSlice";
 import UserCard from "./UserCard";
-import { ListFilterPlus } from "lucide-react";
 
 // How many "peek" cards to show behind the top card (desktop default)
 const STACK_DEPTH = 5;
@@ -48,7 +46,9 @@ function getBreakpoint(width) {
 // Tracks viewport width and returns the current breakpoint key.
 function useBreakpoint() {
   const [breakpoint, setBreakpoint] = useState(() =>
-    typeof window !== "undefined" ? getBreakpoint(window.innerWidth) : "desktop"
+    typeof window !== "undefined"
+      ? getBreakpoint(window.innerWidth)
+      : "desktop",
   );
 
   useEffect(() => {
@@ -68,7 +68,7 @@ function useBreakpoint() {
 function Feed() {
   const dispatch = useDispatch();
   const feed = useSelector((store) => store.feed);
-  const [currentIndex, setCurrentIndex] = useState(0);
+
   const breakpoint = useBreakpoint();
   const stackConfig = STACK_CONFIG_BY_BREAKPOINT[breakpoint];
 
@@ -76,14 +76,33 @@ function Feed() {
   const stackDepth =
     breakpoint === "mobile" ? 5 : breakpoint === "tablet" ? 3 : STACK_DEPTH;
 
-  function handleIgnore() {
-    
-    setCurrentIndex((prev) => prev + 1);
+  async function handleSendRequest(status, userId) {
+    try {
+      const result = await axios.post(
+        `${BASE_URL}/request/send/${status}/${userId}`,
+        {},
+        {
+          withCredentials: true,
+        },
+      );
+      console.log(result);
+
+      dispatch(removeUserFromFeed(userId));
+    } catch (err) {
+      console.log(err);
+    }
   }
 
-  function handleLike() {
+  function handleIgnore(status, userId) {
+    handleSendRequest(status, userId);
+    // setCurrentIndex((prev) => prev + 1);
+  }
 
-    setCurrentIndex((prev) => prev + 1);
+  function handleLike(status, userId) {
+    console.log("status", status, "userId", userId);
+
+    handleSendRequest(status, userId);
+    // setCurrentIndex((prev) => prev + 1);
   }
 
   async function getFeed() {
@@ -110,7 +129,7 @@ function Feed() {
   const peekCards = Array.from({ length: stackDepth })
     .map((_, i) => {
       const depth = stackDepth - i; // e.g. 3, 2, 1
-      const feedIndex = currentIndex + depth;
+      const feedIndex = depth;
       return feed[feedIndex]
         ? { user: feed[feedIndex], depth, key: feed[feedIndex]._id }
         : null;
@@ -119,7 +138,7 @@ function Feed() {
 
   return (
     <div className="relative w-full flex justify-center px-4 mt-4 sm:mt-6 lg:mt-8">
-      {currentIndex >= feed.length ? (
+      {feed.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 sm:py-20 lg:py-24 text-center px-4">
           <div className="text-5xl sm:text-6xl lg:text-7xl mb-4">🎉</div>
 
@@ -144,7 +163,7 @@ function Feed() {
             const translateX = direction * stackConfig.xOffsetStep * depth;
             const opacity = Math.max(
               stackConfig.minOpacity,
-              1 - stackConfig.opacityStep * depth
+              1 - stackConfig.opacityStep * depth,
             );
 
             return (
@@ -167,8 +186,8 @@ function Feed() {
             style={{ zIndex: stackDepth + 1 }}
           >
             <UserCard
-              key={feed[currentIndex]._id}
-              user={feed[currentIndex]}
+              key={feed[0]._id}
+              user={feed[0]}
               onLike={handleLike}
               onIgnore={handleIgnore}
             />

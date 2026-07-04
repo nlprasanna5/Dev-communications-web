@@ -1,7 +1,7 @@
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
-import { addRequests } from "../utils/requestSlice";
+import { addRequests, removeRequests } from "../utils/requestSlice";
 import { useEffect } from "react";
 import { BadgeCheck, ChevronDown } from "lucide-react";
 
@@ -28,6 +28,24 @@ function Requests() {
   useEffect(() => {
     fetchRequests();
   }, []);
+
+  async function reviewRequests(status, requestId) {
+    try {
+      const result = await axios.post(
+        `${BASE_URL}/request/review/${status}/${requestId}`,
+        {},
+        {
+          withCredentials: true,
+        },
+      );
+
+      dispatch(removeRequests(requestId));
+
+      console.log(result);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   console.log("final", requests);
 
@@ -106,41 +124,55 @@ function Requests() {
                       </div>
 
                       {/* Designation */}
-                      <p className="mt-1 text-sm text-base-content/70">
-                        {profile.designation}
-                      </p>
+                      {profile?.designation && (
+                        <p className="mt-1 text-sm text-base-content/70">
+                          {profile.designation}
+                        </p>
+                      )}
 
                       {/* Details */}
-                      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs sm:text-sm text-base-content/60">
-                        <span>{profile.gender?.toUpperCase()}</span>
+                      {profile?.gender ||
+                        profile?.age ||
+                        (profile?.location && (
+                          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs sm:text-sm text-base-content/60">
+                            {profile?.gender && (
+                              <span>{profile.gender?.toUpperCase()}</span>
+                            )}
 
-                        <span>{profile.age} Years</span>
+                            {profile?.age && <span>{profile.age} Years</span>}
 
-                        {profile.location && <span>📍 {profile.location}</span>}
-                      </div>
-
-                      {/* About */}
-                      <p className="mt-3 text-sm text-base-content/80 line-clamp-2">
-                        {profile.about}
-                      </p>
-
-                      {/* Skills */}
-                      <div className="flex flex-wrap gap-2 mt-4">
-                        {profile.skills?.slice(0, 4).map((skill) => (
-                          <span
-                            key={skill}
-                            className="badge badge-outline badge-primary"
-                          >
-                            {skill}
-                          </span>
+                            {profile.location && (
+                              <span>📍 {profile.location}</span>
+                            )}
+                          </div>
                         ))}
 
-                        {profile.skills?.length > 4 && (
-                          <span className="badge badge-neutral">
-                            +{profile.skills.length - 4}
-                          </span>
-                        )}
-                      </div>
+                      {/* About */}
+                      {profile?.about && (
+                        <p className="mt-3 text-sm text-base-content/80 line-clamp-2">
+                          {profile.about}
+                        </p>
+                      )}
+
+                      {/* Skills */}
+                      {profile?.skills?.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          {profile?.skills?.slice(0, 4).map((skill) => (
+                            <span
+                              key={skill}
+                              className="badge badge-outline badge-primary"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+
+                          {profile.skills?.length > 4 && (
+                            <span className="badge badge-neutral">
+                              +{profile.skills.length - 4}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -157,24 +189,15 @@ function Requests() {
             "
                   >
                     <button
-                      className="
-                btn
-                btn-outline
-                btn-error
-                flex-1
-                lg:w-36
-              "
+                      className="btn btn-outline btn-error flex-1 lg:w-36"
+                      onClick={() => reviewRequests("rejected", user?._id)}
                     >
-                      Ignore
+                      Reject
                     </button>
 
                     <button
-                      className="
-                btn
-                btn-primary
-                flex-1
-                lg:w-36
-              "
+                      className=" btn btn-primary flex-1 lg:w-36"
+                      onClick={() => reviewRequests("accepted", user?._id)}
                     >
                       Accept
                     </button>
