@@ -6,6 +6,9 @@ import Feed from "./components/Feed";
 import Login from "./components/Login";
 import EditProfile from "./components/EditProfile";
 import Profile from "./components/Profile";
+import Signup from "./components/Signup";
+import Connections from "./components/Connections";
+import Requests from "./components/Requests";
 
 function App() {
   return (
@@ -18,10 +21,12 @@ function App() {
 
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/edit" element={<EditProfile />} />
-              <Route path="/connections" element={<div>Connections</div>} />
+              <Route path="/connections" element={<Connections/>} />
+              <Route path="/requests" element={<Requests/>} />
               <Route path="/messages" element={<div>Messages</div>} />
             </Route>
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
           </Routes>
         </BrowserRouter>
       </Provider>

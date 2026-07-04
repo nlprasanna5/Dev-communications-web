@@ -7,30 +7,82 @@ import { addFeed } from "../utils/feedSlice";
 import UserCard from "./UserCard";
 import { ListFilterPlus } from "lucide-react";
 
-// How many "peek" cards to show behind the top card
+// How many "peek" cards to show behind the top card (desktop default)
 const STACK_DEPTH = 5;
 
-// Tuning knobs for the fan effect
-const STACK_CONFIG = {
-  rotate: 8, // degrees of tilt per stack level
-  scaleStep: 0.05, // how much smaller each card behind gets
-  yOffsetStep: 14, // px each card behind is pushed down
-  opacityStep: 0.25, // how much dimmer each card behind gets
-  minOpacity: 0.25,
+// Tuning knobs for the fan effect, per breakpoint.
+// mobile: < 640px, tablet: 640px - 1023px, desktop: >= 1024px
+const STACK_CONFIG_BY_BREAKPOINT = {
+  mobile: {
+    rotate: 4,
+    scaleStep: 0.04,
+    yOffsetStep: 8,
+    xOffsetStep: 3,
+    opacityStep: 0.25,
+    minOpacity: 0.25,
+  },
+  tablet: {
+    rotate: 6,
+    scaleStep: 0.045,
+    yOffsetStep: 11,
+    xOffsetStep: 5,
+    opacityStep: 0.25,
+    minOpacity: 0.25,
+  },
+  desktop: {
+    rotate: 8,
+    scaleStep: 0.05,
+    yOffsetStep: 14,
+    xOffsetStep: 6,
+    opacityStep: 0.25,
+    minOpacity: 0.25,
+  },
 };
+
+function getBreakpoint(width) {
+  if (width < 640) return "mobile";
+  if (width < 1024) return "tablet";
+  return "desktop";
+}
+
+// Tracks viewport width and returns the current breakpoint key.
+function useBreakpoint() {
+  const [breakpoint, setBreakpoint] = useState(() =>
+    typeof window !== "undefined" ? getBreakpoint(window.innerWidth) : "desktop"
+  );
+
+  useEffect(() => {
+    function handleResize() {
+      setBreakpoint(getBreakpoint(window.innerWidth));
+    }
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return breakpoint;
+}
 
 function Feed() {
   const dispatch = useDispatch();
   const feed = useSelector((store) => store.feed);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const breakpoint = useBreakpoint();
+  const stackConfig = STACK_CONFIG_BY_BREAKPOINT[breakpoint];
+
+  // Show fewer peek cards on smaller screens to avoid overflow/clutter
+  const stackDepth =
+    breakpoint === "mobile" ? 5 : breakpoint === "tablet" ? 3 : STACK_DEPTH;
 
   function handleIgnore() {
-    // Call your API here
+    
     setCurrentIndex((prev) => prev + 1);
   }
 
   function handleLike() {
-    // Call your API here
+
     setCurrentIndex((prev) => prev + 1);
   }
 
@@ -55,9 +107,9 @@ function Feed() {
 
   // Build the list of "peek" cards behind the current one, deepest first
   // so they stack visually in the right z-order.
-  const peekCards = Array.from({ length: STACK_DEPTH })
+  const peekCards = Array.from({ length: stackDepth })
     .map((_, i) => {
-      const depth = STACK_DEPTH - i; // e.g. 3, 2, 1
+      const depth = stackDepth - i; // e.g. 3, 2, 1
       const feedIndex = currentIndex + depth;
       return feed[feedIndex]
         ? { user: feed[feedIndex], depth, key: feed[feedIndex]._id }
@@ -66,14 +118,16 @@ function Feed() {
     .filter(Boolean);
 
   return (
-    <div className="relative w-full flex justify-center mt-8">
+    <div className="relative w-full flex justify-center px-4 mt-4 sm:mt-6 lg:mt-8">
       {currentIndex >= feed.length ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="text-7xl mb-4">🎉</div>
+        <div className="flex flex-col items-center justify-center py-16 sm:py-20 lg:py-24 text-center px-4">
+          <div className="text-5xl sm:text-6xl lg:text-7xl mb-4">🎉</div>
 
-          <h2 className="text-3xl font-bold">You're all caught up!</h2>
+          <h2 className="text-2xl sm:text-2xl lg:text-3xl font-bold">
+            You're all caught up!
+          </h2>
 
-          <p className="mt-3 text-base-content/70 max-w-md">
+          <p className="mt-3 text-sm sm:text-base text-base-content/70 max-w-md">
             There are no more developers to discover right now. Please check
             back later for new profiles.
           </p>
@@ -84,23 +138,23 @@ function Feed() {
             // Alternate left/right tilt based on depth so cards fan out
             // like a real deck: depth 1 -> right, depth 2 -> left, etc.
             const direction = depth % 2 === 0 ? -1 : 1;
-            const rotate = direction * STACK_CONFIG.rotate * depth * 0.6;
-            const scale = 1 - STACK_CONFIG.scaleStep * depth;
-            const translateY = STACK_CONFIG.yOffsetStep * depth;
-            const translateX = direction * 6 * depth;
+            const rotate = direction * stackConfig.rotate * depth * 0.6;
+            const scale = 1 - stackConfig.scaleStep * depth;
+            const translateY = stackConfig.yOffsetStep * depth;
+            const translateX = direction * stackConfig.xOffsetStep * depth;
             const opacity = Math.max(
-              STACK_CONFIG.minOpacity,
-              1 - STACK_CONFIG.opacityStep * depth
+              stackConfig.minOpacity,
+              1 - stackConfig.opacityStep * depth
             );
 
             return (
               <div
                 key={key}
-                className="absolute pointer-events-none transition-all duration-300 ease-out"
+                className="absolute pointer-events-none transition-all duration-300 ease-out w-full max-w-[92vw] sm:max-w-[420px] lg:max-w-[450px]"
                 style={{
                   transform: `translate(${translateX}px, ${translateY}px) rotate(${rotate}deg) scale(${scale})`,
                   opacity,
-                  zIndex: STACK_DEPTH - depth,
+                  zIndex: stackDepth - depth,
                 }}
               >
                 <UserCard user={user} preview />
@@ -108,7 +162,10 @@ function Feed() {
             );
           })}
 
-          <div className="relative" style={{ zIndex: STACK_DEPTH + 1 }}>
+          <div
+            className="relative w-full max-w-[92vw] sm:max-w-[420px] lg:max-w-[450px]"
+            style={{ zIndex: stackDepth + 1 }}
+          >
             <UserCard
               key={feed[currentIndex]._id}
               user={feed[currentIndex]}
