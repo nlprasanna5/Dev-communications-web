@@ -45,8 +45,8 @@ export default function ConnectionsPage() {
       </p>
     </div>
   ) : (
-    <div className="mx-auto max-w-6xl rounded-3xl border border-base-300 bg-base-100 shadow-xl overflow-hidden my-6">
-      <div className="mx-auto max-w-7xl rounded-2xl border border-base-300 bg-base-100 shadow-xl overflow-hidden">
+    <div className="mx-auto max-w-6xl bg-base-100 shadow-xl overflow-hidden my-6">
+      <div className="m-2 max-w-7xl rounded-2xl border border-base-300 bg-base-100 shadow-xl overflow-hidden">
         {/* Header */}
         <div className="border-b border-base-300 px-4 py-5 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
