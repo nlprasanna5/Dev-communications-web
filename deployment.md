@@ -1,0 +1,59 @@
+# Deployment
+
+- Signup on Aws
+- Launch instance
+- chmod 400 devcatchup-secret.pem
+- ssh -i "devcatchup-secret.pem" ubuntu@ec2-16-171-193-72.eu-north-1.compute.amazonaws.com
+- node version should be same
+- git clone the github projects
+- Frontend
+    - go to project folder then npm install and then npm run build
+    - sudo apt update
+    - sudo apt install nginx
+    - sudo systemctl start nginx
+    - sudo systemctl enable nginx
+    - copy code from dist(build files) to /var/www/html/
+    - sudo scp -r dist/* /var/www/html/
+    - Enable port :80 of your instance 
+
+- Backend
+    - go to project folder then do npm install
+    - add network access for the mongodb
+    - enable port :4000 of your instance  in ec2 instance pulic ip
+    - install pm2 package with the command => npm install pm2 -g 
+    - pm2 start npm -- start 
+    - pm2 logs
+    - pm2 flush npm
+    - pm2 stop npm
+    - pm2 delete npm
+    - pm2 list
+    - pm2 start npm --name "devtinder-backend" -- start
+
+    - path for nginx
+    - config nginx - sudo nano /etc/nginx/sites-available/default
+
+ 
+    - add the server name
+    - nginx config
+
+          location /api/ {
+        proxy_pass http://localhost:4000/;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    } 
+
+    - restart the nginx
+    - sudo sysytemctl restart nginx
+    - modify the frontend base url to api
+
+
+
+  frontend => http://16.171.193.72/
+  Backend => http://16.171.193.72/4000 => http://16.171.193.72/api  
