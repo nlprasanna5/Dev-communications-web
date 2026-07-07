@@ -1,5 +1,4 @@
 import { useState } from "react";
-import loginImage from "../assets/login_image.png";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
@@ -40,29 +39,31 @@ function Login() {
   };
 
   return (
-    <main data-theme="mytheme" className="min-h-screen bg-base-100 p-6   flex">
-      {/* Left Section */}
-      <LoginLeftSide/>
+    <main data-theme="mytheme" className="min-h-screen bg-base-100 p-3 sm:p-6 flex flex-col lg:flex-row">
+      {/* Left Section - hidden on mobile */}
+      <div className="hidden lg:flex lg:flex-1">
+        <LoginLeftSide />
+      </div>
 
       {/* Right Section */}
-      <section className="flex  bg-base-200 rounded-[10px] p-4 py-8 flex-1 border border-base-300 ">
-        <article className="w-full flex flex-col gap-10">
+      <section className="flex bg-base-200 rounded-[10px] p-4 py-8 flex-1 border border-base-300">
+        <article className="w-full flex flex-col gap-6 sm:gap-10">
           {/* Login Header */}
           <header className="text-center flex flex-col justify-center">
-            <h2 className="text-[36px]">Welcome Back 👋</h2>
-            <p className="text-[#A9A9A9] text-xl tracking-widest">
+            <h2 className="text-[28px] sm:text-[36px]">Welcome Back 👋</h2>
+            <p className="text-[#A9A9A9] text-base sm:text-xl tracking-wide sm:tracking-widest">
               Login to your account
             </p>
           </header>
 
           {/* Login Form */}
-          <form className="px-18  w-full flex flex-col gap-4 ">
+          <form className="px-2 sm:px-6 md:px-12 lg:px-18 w-full flex flex-col gap-4">
             {/* Form Fields */}
-            <section className="w-full  flex flex-col gap-6">
+            <section className="w-full flex flex-col gap-6">
               <fieldset className="fieldset w-full">
                 <legend className="fieldset-legend text-lg">Email Id</legend>
 
-                <label className="input validator w-full   h-[52px]  ">
+                <label className="input validator w-full h-[52px]">
                   <svg
                     className="h-[1em] opacity-50"
                     xmlns="http://www.w3.org/2000/svg"
@@ -98,7 +99,7 @@ function Login() {
               <fieldset className="fieldset">
                 <legend className="fieldset-legend text-lg">Password</legend>
 
-                <label className="input validator w-full h-[52px] ">
+                <label className="input validator w-full h-[52px]">
                   <svg
                     className="h-[1em] opacity-50"
                     xmlns="http://www.w3.org/2000/svg"
@@ -179,7 +180,7 @@ function Login() {
             </section>
 
             {/* Remember & Forgot Password */}
-            <nav className="flex justify-between">
+            <nav className="flex flex-col xs:flex-row justify-between gap-2 xs:gap-0">
               <label className="flex items-center gap-2">
                 <input type="checkbox" defaultChecked className="checkbox" />
                 <span>Remember me</span>
@@ -187,7 +188,7 @@ function Login() {
 
               <button
                 type="button"
-                className="text-secondary text-sm font-medium cursor-pointer underline-offset-2 hover:underline transition"
+                className="text-secondary text-sm font-medium cursor-pointer underline-offset-2 hover:underline transition text-left"
               >
                 Forgot password?
               </button>
@@ -206,8 +207,9 @@ function Login() {
           <footer className="text-center">
             <p>
               Don't have an account?{" "}
-              <span className="text-secondary underline cursor-pointer"
-              onClick={() => navigate("/signup")}
+              <span
+                className="text-secondary underline cursor-pointer"
+                onClick={() => navigate("/signup")}
               >
                 Sign up
               </span>
