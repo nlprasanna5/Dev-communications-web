@@ -57,3 +57,19 @@
 
   frontend => http://16.171.193.72/
   Backend => http://16.171.193.72/4000 => http://16.171.193.72/api  
+
+
+
+# Adding a custom domain name
+
+- purchased domain name from godaddy
+- signup on cloudfare & add a new domain 
+- change the nameservers on godaddy and point to a cloudflare
+- wait for sometime till your nameservers are updated.
+- DNS record: A devtinder.in 43.204.96.49
+- Enable SSL for website
+
+# EMail sending via AWS
+ 
+- create iam user in aws console
+- and then amazon simple email service(SES)
