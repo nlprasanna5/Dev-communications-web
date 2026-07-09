@@ -1,14 +1,16 @@
 
 
 // export const BASE_URL="/api"
-export const BASE_URL=import.meta.env.VITE_API_URL
+// export const BASE_URL=import.meta.env.VITE_API_URL
 
 
-const isDevelopment = import.meta.env.DEV;
+const apiUrl = import.meta.env.VITE_API_URL;
 
-// export const BASE_URL = isDevelopment
-//   ? import.meta.env.VITE_API_STAGING_URL
-//   : import.meta.env.VITE_API_URL;
+export const BASE_URL = apiUrl.includes("16.171.193.72")
+  ? `${apiUrl}/api`
+  : apiUrl;
+
+
 
 export const COLORS = {
   PRIMARY: "#484CF8",
