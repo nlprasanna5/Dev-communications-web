@@ -4,12 +4,20 @@
 // export const BASE_URL=import.meta.env.VITE_API_URL
 
 
-const apiUrl = import.meta.env.VITE_API_URL;
+// const apiUrl = import.meta.env.VITE_API_URL;
 
-export const BASE_URL = apiUrl.includes("16.171.193.72")
-  ? `${apiUrl}/api`
-  : apiUrl;
+// export const BASE_URL = apiUrl.includes("16.171.193.72")
+//   ? `/api`
+//   : apiUrl;
 
+const hostname = window.location.hostname;
+
+export const BASE_URL =
+  hostname === "16.171.193.72"
+    ? "/api"
+    : import.meta.env.VITE_API_URL;
+
+console.log("BASE_URL",BASE_URL);
 
 
 export const COLORS = {

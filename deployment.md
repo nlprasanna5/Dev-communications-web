@@ -80,3 +80,8 @@
 - Code Example
 - Setup SesClient
 - Access Credentials should be created in Iam
+
+
+# create .env file in server nginx
+
+- sudo nano .env
