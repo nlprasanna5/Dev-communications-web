@@ -73,3 +73,10 @@
  
 - create iam user in aws console
 - and then amazon simple email service(SES)
+- Amazon SES: Create an Identity
+- Verify your domain name
+- Verfiy an email address
+- Install AWS SDK - v3
+- Code Example
+- Setup SesClient
+- Access Credentials should be created in Iam

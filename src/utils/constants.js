@@ -3,6 +3,13 @@
 // export const BASE_URL="/api"
 export const BASE_URL=import.meta.env.VITE_API_URL
 
+
+const isDevelopment = import.meta.env.DEV;
+
+// export const BASE_URL = isDevelopment
+//   ? import.meta.env.VITE_API_STAGING_URL
+//   : import.meta.env.VITE_API_URL;
+
 export const COLORS = {
   PRIMARY: "#484CF8",
   SECONDARY: "#825AED",
