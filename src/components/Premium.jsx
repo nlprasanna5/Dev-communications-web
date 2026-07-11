@@ -1,6 +1,7 @@
 import axios from "axios";
 import { CheckCircle } from "lucide-react";
 import { BASE_URL } from "../utils/constants";
+import { useEffect, useState } from "react";
 
 const plans = [
   {
@@ -49,6 +50,21 @@ const plans = [
 ];
 
 const Premium = () => {
+  const [isUserPremiun, setUserPremium] = useState(false);
+  async function verifyPremiumUser() {
+    const response = await axios.get(BASE_URL + "/payment/verify", {
+      withCredentials: true,
+    });
+
+    if (response.data.isPremium) {
+      setUserPremium(true);
+    }
+  }
+
+  useEffect(() => {
+    verifyPremiumUser();
+  }, []);
+
   async function handleBuyClick(type) {
     try {
       const order = await axios.post(
@@ -80,6 +96,7 @@ const Premium = () => {
         theme: {
           color: "#F37254",
         },
+        handler: verifyPremiumUser,
       };
 
       const rzp = new window.Razorpay(options);
@@ -88,7 +105,45 @@ const Premium = () => {
       console.log(err);
     }
   }
-  return (
+  return isUserPremiun ? (
+   <div className="min-h-[80vh] flex items-center justify-center bg-base-200 px-4">
+  <div className="max-w-lg w-full bg-base-100 shadow-2xl rounded-3xl p-8 text-center border border-success/20">
+    
+    <div className="w-20 h-20 mx-auto rounded-full bg-success/10 flex items-center justify-center mb-6">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-10 w-10 text-success"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M5 13l4 4L19 7"
+        />
+      </svg>
+    </div>
+
+    <h1 className="text-3xl font-bold text-success">
+      You're Already a Premium Member 🎉
+    </h1>
+
+    <p className="mt-4 text-base-content/70 leading-relaxed">
+      Your premium membership is active and you have full access to all exclusive
+      features, unlimited connections, and priority benefits.
+    </p>
+
+    <button
+      className="btn btn-success mt-8 px-8"
+      onClick={() => window.history.back()}
+    >
+      Go Back
+    </button>
+  </div>
+</div>
+  ) : (
     <div className="min-h-screen bg-base-200 py-14 px-5">
       <div className="max-w-7xl mx-auto">
         {/* Hero */}
