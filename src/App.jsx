@@ -9,6 +9,7 @@ import Profile from "./components/Profile";
 import Signup from "./components/Signup";
 import Connections from "./components/Connections";
 import Requests from "./components/Requests";
+import Premium from "./components/Premium";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
               <Route path="/profile/edit" element={<EditProfile />} />
               <Route path="/connections" element={<Connections/>} />
               <Route path="/requests" element={<Requests/>} />
+              <Route path="/premium" element={<Premium/>} />
               <Route path="/messages" element={<div>Messages</div>} />
             </Route>
             <Route path="/login" element={<Login />} />

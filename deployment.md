@@ -50,7 +50,7 @@
     } 
 
     - restart the nginx
-    - sudo sysytemctl restart nginx
+    - sudo systemctl restart nginx
     - modify the frontend base url to api
 
 
@@ -85,3 +85,29 @@
 # create .env file in server nginx
 
 - sudo nano .env
+
+
+# Scheduling cron jobs in NodeJS
+- Installing node-cron
+- Learning about cron expressions syntax - crontab.guru
+- Schedule a job
+- date-fns
+- Find all the unique email Id who have got connection Request in previous day
+- Send Email
+- Explore queue mechanism to send bulk emails
+- Amazon SES Bulk Emails
+- Make sendEmail function dynamic
+- bee-queue & bull npm packages
+
+
+# Razorpay Payment Gateway Integration
+
+- Sign up on Razorpay & complete KYC
+- Created a UI for premiun page
+- Creating an API for create order in backend
+- added my key and secret in env file
+- Intialized Razorpay in utils
+- creating order on Razorpay
+- saved the order in payments collection
+- make the API dynamic
+- setup Razorpay webhook on your live api

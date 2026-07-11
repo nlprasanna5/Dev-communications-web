@@ -4,6 +4,7 @@ import {
   Users,
   House,
   SquareUserRound,
+  ChessQueen 
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router";
@@ -38,6 +39,11 @@ const navItems = [
     icon: <SquareUserRound />,
     name: "Profile",
     redirect: "/profile",
+  },
+  {
+    icon: <ChessQueen  />,
+    name: "Premium",
+    redirect: "/premium",
   },
 ];
 
