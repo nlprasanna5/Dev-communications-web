@@ -9,6 +9,7 @@ import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { getConnections } from "../utils/connectionSlice";
 import { useEffect } from "react";
+import { Link } from "react-router";
 
 export default function ConnectionsPage() {
   const dispatch = useDispatch();
@@ -160,10 +161,12 @@ export default function ConnectionsPage() {
             lg:w-auto
           "
                 >
-                  <button className="btn btn-primary lg:w-40">
+                  <Link className="btn btn-primary lg:w-40"
+                  to={`/chat/${user?._id}`}
+                  >
                     <MessageCircle size={18} />
                     Message
-                  </button>
+                  </Link>
 
                   <button className="btn btn-outline lg:w-40">
                     <MoreVertical size={18} />

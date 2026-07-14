@@ -111,3 +111,17 @@
 - saved the order in payments collection
 - make the API dynamic
 - setup Razorpay webhook on your live api
+
+
+
+# Real Time Chat using websocket(Socket.io)
+- If I', not friend, then I should not able to send message.
+- auth in web sockets
+- Show Green signal when online - last seen also
+- limit messages when fetching from DB and build pagination like thing
+
+
+# Project Ideas
+- Chess board
+- Type Racer
+- Tic Tac Toe

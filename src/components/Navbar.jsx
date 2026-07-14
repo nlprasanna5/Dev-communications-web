@@ -33,7 +33,7 @@ const navItems = [
   {
     icon: <MessageCircleMore />,
     name: "Messages",
-    redirect: "/messages",
+    redirect: "/chat",
   },
   {
     icon: <SquareUserRound />,
