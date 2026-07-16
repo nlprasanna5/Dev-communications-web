@@ -191,10 +191,12 @@ export default function ConnectionsPage() {
                     Message
                   </Link>
 
-                  <button className="btn btn-outline lg:w-40">
+                  <Link className="btn btn-outline lg:w-40"
+                  to={`/profile/${user?._id}`}
+                  >
                     <MoreVertical size={18} />
                     Profile
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>

@@ -22,6 +22,7 @@ function App() {
               <Route path="/" element={<Feed />} />
 
               <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/:connectionId" element={<Profile />} />
               <Route path="/profile/edit" element={<EditProfile />} />
               <Route path="/connections" element={<Connections />} />
               <Route path="/requests" element={<Requests />} />

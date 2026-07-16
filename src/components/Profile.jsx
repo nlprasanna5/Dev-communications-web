@@ -10,70 +10,78 @@ import {
   UserStar,
 } from "lucide-react";
 
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router";
-
-const profileStrength = [
-  {
-    title: "Projects",
-    value: 70,
-    icon: <CircleCheckBig className="text-success" size={16} />,
-  },
-  {
-    title: "Skills",
-    value: 80,
-    icon: <CircleCheckBig className="text-success" size={16} />,
-  },
-  {
-    title: "Experience",
-    value: 60,
-    icon: <CircleX className="text-error" size={16} />,
-  },
-];
-
-const connections = [
-  {
-    id: 1,
-    name: "John Doe",
-    role: "Frontend Developer",
-    image: "https://i.pravatar.cc/100?img=1",
-    status: "Online",
-  },
-  {
-    id: 2,
-    name: "Sarah Wilson",
-    role: "Backend Engineer",
-    image: "https://i.pravatar.cc/100?img=5",
-    status: "Offline",
-  },
-  {
-    id: 3,
-    name: "Alex Johnson",
-    role: "Full Stack Developer",
-    image: "https://i.pravatar.cc/100?img=8",
-    status: "Online",
-  },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router";
+import { BASE_URL } from "../utils/constants";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { getProfileStrengthLabel } from "../utils/helperFunctions";
+import { addUser } from "../utils/userSlice";
 
 function Profile() {
   const navigate = useNavigate();
-  const user = useSelector((store) => store.user);
-  const {
-    firstName,
-    lastName,
-    emailId,
-    photoUrl,
-    age,
-    gender,
-    skills,
-    about,
-    designation,
-    location,
-    totalExperience,
-    socialLinks,
-    experience,
-    projects,
-  } = user;
+  // const user = useSelector((store) => store?.user);
+  const [user, setUser] = useState({});
+  const dispatch = useDispatch();
+  const [connections, setConnections] = useState([]);
+  const onlineUsers = useSelector((store) => store?.onlineUsers);
+  const { connectionId } = useParams();
+
+  async function connectionList() {
+    try {
+      const result = await axios.get(BASE_URL + "/user/connections", {
+        withCredentials: true,
+      });
+
+      console.log("all", result?.data?.data);
+
+      setConnections(result?.data?.data?.slice(0, 3));
+    } catch (err) {
+      console.log(err?.response?.data?.message);
+    }
+  }
+
+  console.log("connections", connections);
+
+  useEffect(() => {
+    connectionList();
+  }, []);
+
+  async function getConnectedUserDetails() {
+    try {
+      const result = await axios.get(
+        `${BASE_URL}/profile/view/${connectionId}`,
+        {
+          withCredentials: true,
+        },
+      );
+
+      setUser(result?.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function getProfileDetails() {
+    try {
+      const result = await axios.get(`${BASE_URL}/profile/view`, {
+        withCredentials: true,
+      });
+
+      setUser(result?.data);
+      dispatch(addUser(result?.data?.data));
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  useEffect(() => {
+    if (connectionId) {
+      getConnectedUserDetails();
+    } else {
+      getProfileDetails();
+    }
+  }, [connectionId]);
 
   function handleEdit() {
     navigate("/profile/edit");
@@ -90,7 +98,7 @@ function Profile() {
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 w-full">
             <figure className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full shrink-0">
               <img
-                src={photoUrl}
+                src={user?.data?.photoUrl}
                 alt="Profile"
                 className="w-full h-full rounded-full object-cover"
               />
@@ -99,58 +107,62 @@ function Profile() {
             <div className="flex flex-col gap-4 flex-1 text-center sm:text-left">
               <div>
                 <h2 className="text-xl md:text-2xl font-bold text-primary-content">
-                  {firstName} {lastName}
+                  {user?.data?.firstName} {user?.data?.lastName}
                 </h2>
 
-                <p className="text-secondary-content">{designation}</p>
+                <p className="text-secondary-content">
+                  {user?.data?.designation}
+                </p>
               </div>
 
-              {gender ||
-                age ||
-                location ||
-                (totalExperience && (
+              {user?.data?.gender ||
+                user?.data?.age ||
+                user?.data?.location ||
+                (user?.data?.totalExperience && (
                   <div className="flex flex-wrap justify-center sm:justify-start gap-4 text-sm">
-                    {gender && age && (
+                    {user?.data?.gender && user?.data?.age && (
                       <p className="text-primary-content flex items-center gap-1">
                         <UserStar size={16} />
-                        {gender?.toUpperCase()}
+                        {user?.data?.gender?.toUpperCase()}
                         {" - "}
-                        {age}Y
+                        {user?.data?.age}Y
                       </p>
                     )}
 
-                    {location && (
+                    {user?.data?.location && (
                       <p className="text-primary-content flex items-center gap-1">
                         <MapPin size={16} />
-                        {location}
+                        {user?.data?.location}
                       </p>
                     )}
 
-                    {totalExperience && (
+                    {user?.data?.totalExperience && (
                       <p className="text-primary-content flex items-center gap-1">
                         <BriefcaseBusiness size={16} />
-                        {totalExperience} years of Experience
+                        {user?.data?.totalExperience} years of Experience
                       </p>
                     )}
                   </div>
                 ))}
 
               <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-                {Object.entries(socialLinks || {}).map(([name, url]) => {
-                  if (!url) return null;
+                {Object.entries(user?.data?.socialLinks || {}).map(
+                  ([name, url]) => {
+                    if (!url) return null;
 
-                  return (
-                    <a
-                      key={name}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="border border-base-300 rounded-md px-3 py-2 text-xs text-secondary-content hover:bg-base-100/10 transition"
-                    >
-                      {url}
-                    </a>
-                  );
-                })}
+                    return (
+                      <a
+                        key={name}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="border border-base-300 rounded-md px-3 py-2 text-xs text-secondary-content hover:bg-base-100/10 transition"
+                      >
+                        {url}
+                      </a>
+                    );
+                  },
+                )}
               </div>
             </div>
           </div>
@@ -177,17 +189,17 @@ function Profile() {
                 About
               </h3>
 
-              <p className="text-base-content leading-7">{about}</p>
+              <p className="text-base-content leading-7">{user?.data?.about}</p>
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="border border-base-300 rounded-md px-3 py-2 text-sm">
                   <MailCheck size={16} className="inline-block mr-2" />
-                  {emailId}
+                  {user?.data?.emailId}
                 </div>
 
                 <div className="border border-base-300 rounded-md px-3 py-2 text-sm">
                   <MapPin size={16} className="inline-block mr-2" />
-                  {location}
+                  {user?.data?.location}
                 </div>
               </div>
             </div>
@@ -200,7 +212,7 @@ function Profile() {
               </h3>
 
               <ul className="flex flex-wrap gap-3">
-                {skills.map((skill) => (
+                {user?.data?.skills?.map((skill) => (
                   <li
                     key={skill}
                     className="px-3 py-1 rounded-full border border-base-300 text-sm"
@@ -219,7 +231,7 @@ function Profile() {
               </h3>
 
               <ul className="steps steps-vertical">
-                {experience.map((exp) => (
+                {user?.data?.experience?.map((exp) => (
                   <li key={exp._id} className="step step-primary text-left">
                     <div>
                       <p className="font-semibold">{exp.role}</p>
@@ -243,7 +255,7 @@ function Profile() {
             </h3>
 
             <ul className="flex flex-col gap-4">
-              {projects.map((project) => (
+              {user?.data?.projects?.map((project) => (
                 <li
                   key={project._id}
                   className="bg-base-200 rounded-lg p-4 flex flex-col gap-3"
@@ -257,7 +269,7 @@ function Profile() {
                   </p>
 
                   <div className="flex flex-wrap gap-2">
-                    {project.technologies.map((tech) => (
+                    {project?.technologies?.map((tech) => (
                       <span
                         key={tech}
                         className="px-2 py-1 rounded border border-base-300 text-xs"
@@ -294,85 +306,96 @@ function Profile() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-6">
             <div
               className="radial-progress text-primary"
-              style={{ "--value": 70 }}
-              aria-valuenow={70}
+              style={{ "--value": user?.strengthDetails?.profileStrength }}
+              aria-valuenow={user?.strengthDetails?.profileStrength}
               role="progressbar"
             >
-              70%
+              {user?.strengthDetails?.profileStrength}
             </div>
 
             <div className="w-full sm:flex-1">
               <progress
                 className="progress progress-success w-full"
-                value="70"
+                value={user?.strengthDetails?.profileStrength || 0}
                 max="100"
               ></progress>
 
               <p className="mt-2 text-center sm:text-left text-sm font-medium text-success">
-                Excellent
+                {getProfileStrengthLabel(
+                  user?.strengthDetails?.profileStrength || 0,
+                )}
               </p>
             </div>
           </div>
 
           <div className="space-y-3">
-            {profileStrength?.map((item) => (
+            {user?.strengthDetails?.missingFields?.map((item, index) => (
               <div
-                key={item.title}
+                key={index}
                 className="flex items-center gap-3 rounded-lg border border-base-300 p-3"
               >
-                <div className="text-primary">{item.icon}</div>
+                <div className="text-[red]">
+                  <CircleX />
+                </div>
 
-                <span className="text-sm md:text-base">{item.title}</span>
+                <span className="text-sm md:text-base">{item}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Connections */}
-        <div className="bg-base-100 border border-base-300 rounded-lg p-4 md:p-6">
-          <h2 className="text-lg font-semibold text-base-content mb-5">
-            Connections
-          </h2>
+        {!connectionId && (
+          <div className="bg-base-100 border border-base-300 rounded-lg p-4 md:p-6">
+            <h2 className="text-lg font-semibold text-base-content mb-5">
+              Connections
+            </h2>
 
-          <div className="flex flex-col gap-4">
-            {connections.map((connection) => (
-              <div
-                key={connection.id}
-                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-lg bg-base-200 p-4"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <img
-                    src={connection.image}
-                    alt={connection.name}
-                    className="w-12 h-12 rounded-full object-cover shrink-0"
-                  />
+            <div className="flex flex-col gap-4">
+              {connections.map((connection) => (
+                <div
+                  key={connection?._id}
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-lg bg-base-200 p-4"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <img
+                      src={connection?.photoUrl}
+                      alt={connection._id}
+                      className="w-12 h-12 rounded-full object-cover shrink-0"
+                    />
 
-                  <div className="min-w-0">
-                    <p className="font-medium truncate">{connection.name}</p>
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">
+                        {connection?.firstName}
+                      </p>
 
-                    <p className="text-sm text-base-content/70 truncate">
-                      {connection.role}
-                    </p>
+                      <p className="text-sm text-base-content/70 truncate">
+                        {connection?.designation}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`badge self-start sm:self-center ${
+                      onlineUsers?.includes(connection?._id)
+                        ? "badge-success"
+                        : "badge-neutral"
+                    }`}
+                  >
+                    {connection.status}
                   </div>
                 </div>
+              ))}
+            </div>
 
-                <div
-                  className={`badge self-start sm:self-center ${
-                    connection.status === "Online"
-                      ? "badge-success"
-                      : "badge-neutral"
-                  }`}
-                >
-                  {connection.status}
-                </div>
-              </div>
-            ))}
+            <button
+              className="btn btn-outline btn-primary w-full mt-6"
+              onClick={() => navigate("/connections")}
+            >
+              View All Connections
+            </button>
           </div>
-
-          <button className="btn btn-outline btn-primary w-full mt-6">
-            View All Connections
-          </button>
-        </div>
+        )}
       </section>
     </main>
   );

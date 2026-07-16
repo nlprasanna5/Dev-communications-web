@@ -5,7 +5,6 @@ import axios from "axios";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addUser } from "../utils/userSlice";
-import Toast from "./Toast";
 
 function EditProfile() {
   const user = useSelector((store) => store.user);
@@ -102,60 +101,68 @@ function EditProfile() {
   };
 
   function handleOnKeyDown(e, projectIndex) {
-  if (e.key !== "Enter" && e.key !== ",") return;
+    if (e.key !== "Enter" && e.key !== ",") return;
 
-  e.preventDefault();
+    e.preventDefault();
 
-  const value = techStackInputs[projectIndex]?.trim();
+    const value = techStackInputs[projectIndex]?.trim();
 
-  if (!value) return;
+    if (!value) return;
 
-  setFormData((prev) => ({
-    ...prev,
-    projects: prev.projects.map((project, index) => {
-      if (index !== projectIndex) return project;
+    setFormData((prev) => ({
+      ...prev,
+      projects: prev.projects.map((project, index) => {
+        if (index !== projectIndex) return project;
 
-      const technologies = project.technologies || [];
+        const technologies = project.technologies || [];
 
-      // Prevent duplicates
-      if (technologies.includes(value)) {
-        return project;
-      }
+        // Prevent duplicates
+        if (technologies.includes(value)) {
+          return project;
+        }
 
-      return {
-        ...project,
-        technologies: [...technologies, value],
-      };
-    }),
-  }));
+        return {
+          ...project,
+          technologies: [...technologies, value],
+        };
+      }),
+    }));
 
-  // Clear input
-  setTechStackInputs((prev) => ({
-    ...prev,
-    [projectIndex]: "",
-  }));
-}
+    // Clear input
+    setTechStackInputs((prev) => ({
+      ...prev,
+      [projectIndex]: "",
+    }));
+  }
 
   function handleRemoveTechnology(projectIndex, techIndex) {
-  setFormData((prev) => ({
-    ...prev,
-    projects: prev.projects.map((project, index) =>
-      index === projectIndex
-        ? {
-            ...project,
-            technologies: project.technologies.filter(
-              (_, i) => i !== techIndex
-            ),
-          }
-        : project
-    ),
-  }));
-}
+    setFormData((prev) => ({
+      ...prev,
+      projects: prev.projects.map((project, index) =>
+        index === projectIndex
+          ? {
+              ...project,
+              technologies: project.technologies.filter(
+                (_, i) => i !== techIndex,
+              ),
+            }
+          : project,
+      ),
+    }));
+  }
 
   return (
     <main className="min-h-screen bg-base-200 px-4">
       <div className="max-w-7xl mx-auto py-2 ">
         {/* Header */}
+
+        {showToast && (
+          <div className="toast toast-top toast-end z-50">
+            <div className="alert alert-success">
+              <span>Profile updated successfully!</span>
+            </div>
+          </div>
+        )}
 
         <div className="flex items-center gap-4 mb-4 pt-2">
           <button

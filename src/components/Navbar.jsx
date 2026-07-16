@@ -50,6 +50,9 @@ const navItems = [
 function Navbar() {
   const user = useSelector((store) => store.user);
 
+  console.log("User-new",user);
+  
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
@@ -181,12 +184,12 @@ function Navbar() {
                 <div className="flex items-center gap-3 px-2">
                   <div className="avatar">
                     <div className="w-12 rounded-full">
-                      <img src={user.photoUrl} alt="profile" />
+                      <img src={user.photoUrl || user?.data?.photoUrl} alt="profile" />
                     </div>
                   </div>
 
                   <div>
-                    <p className="font-semibold">{user.firstName}</p>
+                    <p className="font-semibold">{user.firstName || user?.data?.photoUrl}</p>
 
                     <p className="text-sm text-base-content/70">Welcome back</p>
                   </div>
