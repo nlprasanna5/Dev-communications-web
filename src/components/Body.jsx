@@ -8,7 +8,6 @@ import { addUser } from "../utils/userSlice";
 import { createSocketConnection } from "../utils/socket";
 import { setOnlineUsers, updateUserStatus } from "../utils/onlineUserSlice";
 
-
 function Body() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -44,53 +43,29 @@ function Body() {
   // Connect socket once user is available
 
   useEffect(() => {
-
     if (!userData?._id) return;
-
-
 
     const socket = createSocketConnection();
 
-
-
     socket.on("connect", () => {
-
       console.log("Socket Connected");
-
     });
-
-
 
     socket.on("onlineUsers", (users) => {
-
       console.log("Online Users:", users);
-       dispatch(setOnlineUsers(users));
-
-
-
-      // Later you can store this in Redux
-
+      dispatch(setOnlineUsers(users));
     });
-
-
 
     socket.on("userStatusChanged", ({ userId, isOnline }) => {
-
       console.log(userId, isOnline);
-      dispatch(updateUserStatus({userId:userId,isOnline:isOnline}));
-
+      dispatch(updateUserStatus({ userId: userId, isOnline: isOnline }));
     });
 
-
-
     return () => {
-
       socket.off("onlineUsers");
 
       socket.off("userStatusChanged");
-
     };
-
   }, [userData]);
 
   if (loading) {
