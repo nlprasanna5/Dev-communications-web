@@ -27,7 +27,8 @@ function App() {
               <Route path="/requests" element={<Requests />} />
               <Route path="/premium" element={<Premium />} />
 
-              <Route path="/chat/:targetUserId" element={<Chat />} />
+              
+            <Route path="/chat/:targetUserId" element={<Chat />} />
             </Route>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />

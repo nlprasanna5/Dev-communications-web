@@ -115,9 +115,9 @@
 
 
 # Real Time Chat using websocket(Socket.io)
-- If I', not friend, then I should not able to send message.
-- auth in web sockets
-- Show Green signal when online - last seen also
+- If I', not friend, then I should not able to send message. => done
+- auth in web sockets => done
+- Show Green signal when online - last seen also => done 
 - limit messages when fetching from DB and build pagination like thing
 
 

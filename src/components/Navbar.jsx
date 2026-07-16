@@ -30,11 +30,11 @@ const navItems = [
     name: "Requests",
     redirect: "/requests",
   },
-  {
-    icon: <MessageCircleMore />,
-    name: "Messages",
-    redirect: "/chat",
-  },
+  // {
+  //   icon: <MessageCircleMore />,
+  //   name: "Messages",
+  //   redirect: "/chat",
+  // },
   {
     icon: <SquareUserRound />,
     name: "Profile",

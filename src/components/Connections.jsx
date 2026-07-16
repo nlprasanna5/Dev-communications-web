@@ -14,6 +14,9 @@ import { Link } from "react-router";
 export default function ConnectionsPage() {
   const dispatch = useDispatch();
   const connections = useSelector((store) => store.connections);
+  const onlineUsers = useSelector((store) => store.onlineUsers);
+
+  // const isOnline = onlineUsers.includes(connection._id);
   async function connectionList() {
     try {
       const result = await axios.get(BASE_URL + "/user/connections", {
@@ -88,14 +91,33 @@ export default function ConnectionsPage() {
                         {user.firstName}
                       </h2>
 
-                      <BadgeCheck
-                        size={18}
-                        className="fill-primary text-primary"
-                      />
+                    
 
                       <span className="badge badge-success badge-sm">
                         Connected
                       </span>
+
+                      <div className="flex items-center gap-2 mt-1">
+                        <span
+                          className={`h-2.5 w-2.5 rounded-full ${
+                            onlineUsers.includes(user?._id)
+                              ? "bg-green-500 animate-pulse"
+                              : "bg-gray-400"
+                          }`}
+                        ></span>
+
+                        <span
+                          className={`text-sm font-medium ${
+                            onlineUsers.includes(user?._id)
+                              ? "text-green-400"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {onlineUsers.includes(user?._id)
+                            ? "Online"
+                            : "Offline"}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Role */}
@@ -161,8 +183,9 @@ export default function ConnectionsPage() {
             lg:w-auto
           "
                 >
-                  <Link className="btn btn-primary lg:w-40"
-                  to={`/chat/${user?._id}`}
+                  <Link
+                    className="btn btn-primary lg:w-40"
+                    to={`/chat/${user?._id}`}
                   >
                     <MessageCircle size={18} />
                     Message

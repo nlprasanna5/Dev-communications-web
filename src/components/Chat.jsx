@@ -4,6 +4,7 @@ import { createSocketConnection } from "../utils/socket";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { BASE_URL } from "../utils/constants";
+import { formatTime } from "../utils/helperFunctions";
 
 function Chat() {
   const { targetUserId } = useParams();
@@ -12,60 +13,72 @@ function Chat() {
   const user = useSelector((store) => store.user);
   const userId = user?._id;
   const socketRef = useRef(null);
+  const [error, setError] = useState("");
+  const [isTargetOnline, setIsTargetOnline] = useState(false);
+  const [targetUser, setTargetUser] = useState({});
+  const messagesEndRef = useRef(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const chatContainerRef = useRef(null);
 
-  // useEffect(() => {
-  //   if (!userId) {
-  //     return;
-  //   }
-  //   const socket = createSocketConnection();
-
-  //   // As soons as th epage loaded, the socket connection is made and jointchat event is emitted
-  //   socket.emit("joinChat", {
-  //     firstName: user?.firstName,
-  //     userId,
-  //     targetUserId,
-  //   });
-
-  //   socket.on("messageReceived",({firstName,text}) => {
-  //       console.log(firstName+" : "+text);
-  //       setMessages((messages) => [...messages,{firstName,text}])
-
-  //   })
-
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, [userId, targetUserId]);
-
-  const fetchChatMessages = async () => {
+  const fetchChatMessages = async (pageNumber = 1) => {
     try {
-      const chat = await axios.get(`${BASE_URL}/chat/${targetUserId}`, {
-        withCredentials: true,
-      });
+      setLoadingMessages(true);
+      const chat = await axios.get(
+        `${BASE_URL}/chat/${targetUserId}?page=${pageNumber}&limit=7`,
+        {
+          withCredentials: true,
+        },
+      );
 
-      console.log(chat?.data?.messages);
+      // console.log(chat?.data?.messages);
 
       const chatMessages = chat?.data?.messages?.map((msg) => {
         return {
           firstName: msg?.senderId?.firstName,
           lastName: msg?.senderId?.lastName,
           text: msg?.text,
+          createdAt: msg.createdAt,
+          seen: msg.seen,
         };
       });
-      setMessages(chatMessages);
+
+      if (pageNumber === 1) {
+        setMessages(chatMessages);
+      } else {
+        // prepend older messages
+        setMessages((prev) => [...chatMessages, ...prev]);
+      }
+      // setMessages(chatMessages);
+      setTargetUser(chat?.data?.targetUser);
+      setHasMore(chat.data?.pagination.hasMore);
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoadingMessages(false);
     }
   };
 
   useEffect(() => {
-    fetchChatMessages();
-  }, []);
+    fetchChatMessages(1);
+  }, [targetUserId]);
 
   useEffect(() => {
     if (!userId) return;
 
     socketRef.current = createSocketConnection();
+
+    socketRef.current.on("connect_error", (err) => {
+      console.log(err.message);
+      setError(err.message);
+    });
+
+    socketRef.current.on("messageError", ({ message }) => {
+      console.log("socket-error", message);
+
+      setError(message);
+    });
 
     socketRef.current.emit("joinChat", {
       firstName: user.firstName,
@@ -73,8 +86,43 @@ function Chat() {
       targetUserId,
     });
 
-    socketRef.current.on("messageReceived", ({ firstName,lastName, text }) => {
-      setMessages((prev) => [...prev, { firstName, text,lastName }]);
+    socketRef.current.on(
+      "messageReceived",
+      ({ firstName, lastName, text, timestamp }) => {
+        setMessages((prev) => [
+          ...prev,
+          { firstName, text, lastName, createdAt: timestamp },
+        ]);
+
+        // If I'm viewing this chat, tell the server I've seen it
+        socketRef.current.emit("messagesSeen", {
+          userId,
+          targetUserId,
+        });
+      },
+    );
+
+    socketRef.current.on("messagesSeen", () => {
+      setMessages((prev) =>
+        prev.map((message) => ({
+          ...message,
+          seen: true,
+        })),
+      );
+    });
+
+    socketRef.current.on(
+      "userStatusChanged",
+      ({ userId: changedUserId, isOnline }) => {
+        if (changedUserId === targetUserId) {
+          setIsTargetOnline(isOnline);
+        }
+      },
+    );
+
+    socketRef.current.emit("messagesSeen", {
+      userId,
+      targetUserId,
     });
 
     return () => {
@@ -82,16 +130,50 @@ function Chat() {
     };
   }, [userId, targetUserId]);
 
-  // function sendMessage() {
-  //    const socket = createSocketConnection();
-  //   socket.emit("sendMessage", {
-  //     firstName: user?.firstName,
-  //     userId,
-  //     targetUserId,
-  //     text: newMessage,
-  //   });
-  //   setNewMessage("")
-  // }
+  const scrollToBottom = () => {
+    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+  };
+
+  const loadMoreMessages = async () => {
+    if (loadingMessages || !hasMore) return;
+
+    const container = chatContainerRef.current;
+
+    // Store current scroll height before loading older messages
+    const previousHeight = container.scrollHeight;
+
+    const nextPage = page + 1;
+
+    await fetchChatMessages(nextPage);
+
+    setPage(nextPage);
+
+    // Restore scroll position after new messages are prepended
+    requestAnimationFrame(() => {
+      const newHeight = container.scrollHeight;
+      container.scrollTop = newHeight - previousHeight;
+    });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    const container = chatContainerRef.current;
+
+    if (!container) return;
+
+    const handleScroll = () => {
+      if (container.scrollTop <= 50 && hasMore && !loadingMessages) {
+        loadMoreMessages();
+      }
+    };
+
+    container.addEventListener("scroll", handleScroll);
+
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [hasMore, loadingMessages]);
 
   function sendMessage() {
     socketRef.current.emit("sendMessage", {
@@ -106,72 +188,124 @@ function Chat() {
   }
 
   return (
-    <div className="flex justify-center items-center py-8 bg-base-200 min-h-screen">
-      <div className="w-full max-w-3xl h-[80vh] bg-base-100 rounded-2xl shadow-2xl border border-base-300 flex flex-col overflow-hidden">
+    <div className="h-screen overflow-hidden bg-base-200 flex justify-center items-center p-4">
+      <div className="w-full max-w-4xl h-[80vh] bg-base-100 rounded-3xl shadow-2xl border border-base-300 overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center gap-4 px-6 py-4 border-b border-base-300 bg-base-100">
-          <div className="avatar online">
-            <div className="w-12 rounded-full">
-              <img src="https://i.pravatar.cc/150?img=3" alt="profile" />
-            </div>
-          </div>
+        <div className="px-6 py-4 border-b border-base-300 bg-base-100 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <img
+                src={targetUser?.photoUrl}
+                alt="profile"
+                className="w-12 h-12 rounded-full object-cover"
+              />
 
-          <div>
-            <h2 className="font-bold text-lg">Developer Chat</h2>
-            <p className="text-sm text-success">Online</p>
+              <span
+                className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-base-100 ${
+                  isTargetOnline ? "bg-green-500" : "bg-gray-400"
+                }`}
+              />
+            </div>
+
+            <div>
+              <h2 className="font-bold text-lg">
+                {targetUser?.firstName + " " + targetUser?.lastName}
+              </h2>
+
+              <p
+                className={`text-sm ${
+                  isTargetOnline ? "text-green-500" : "text-base-content/50"
+                }`}
+              >
+                {isTargetOnline ? "Online" : "Offline"}
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto bg-base-200 px-6 py-5 space-y-4">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`chat ${user?.firstName === message?.firstName ? "chat-end" : "chat-start"}`}
-              // className={`chat ${
-              //   message.sender === "sender" ? "chat-end" : "chat-start"
-              // }`}
-            >
-              {message.sender === "receiver" && (
-                <div className="chat-image avatar">
-                  <div className="w-10 rounded-full">
-                    <img src={message.avatar} alt="User Avatar" />
+        <div
+          className="flex-1 overflow-y-auto px-6 py-5 bg-base-200"
+          ref={chatContainerRef}
+        >
+          <div className="space-y-4">
+            {messages.map((message, index) => {
+              const isMe =
+                message.firstName === user?.firstName &&
+                message.lastName === user?.lastName;
+
+              return (
+                <div
+                  key={index}
+                  className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[75%] px-4 py-3 rounded-2xl shadow-md ${
+                      isMe
+                        ? "bg-secondary text-secondary-content rounded-br-md"
+                        : "bg-base-100 border border-base-300 rounded-bl-md"
+                    }`}
+                  >
+                    {!isMe && (
+                      <p className="text-xs font-semibold mb-1 text-primary">
+                        {message.firstName} {message.lastName}
+                      </p>
+                    )}
+
+                    <p className="break-words">{message.text}</p>
+
+                    <div
+                      className={`text-[11px] mt-2 ${
+                        isMe
+                          ? "text-right text-secondary-content/70"
+                          : "text-right text-base-content/50"
+                      }`}
+                    >
+                      {formatTime(message.createdAt)}
+                    </div>
+
+                    {/* {isMe && (
+                      <div className="text-[10px] text-right mt-1">
+                        {message.seen ? "Seen" : "Sent"}
+                      </div>
+                    )} */}
                   </div>
                 </div>
-              )}
-
-              <div
-                className={`chat-bubble ${
-                  message.sender === "sender"
-                    ? "chat-bubble-secondary"
-                    : "bg-base-300 text-base-content"
-                }`}
-              >
-                {message.text}
-              </div>
-
-              <div className="chat-footer text-xs opacity-60 mt-1">
-                {message.time}
-              </div>
-              <div className="chat-footer text-xs opacity-60 mt-1 font-medium">
-                {message.firstName} {message.lastName}
-              </div>
-            </div>
-          ))}
+              );
+            })}
+          </div>
+          <div ref={messagesEndRef}></div>
         </div>
+
+        {error && (
+          <div className="px-4 pb-2">
+            <div className="alert alert-error">
+              <span>{error}</span>
+            </div>
+          </div>
+        )}
 
         {/* Input */}
         <div className="border-t border-base-300 bg-base-100 p-4">
-          <div className="flex items-center gap-3">
+          <div className="flex gap-3">
             <input
               type="text"
-              placeholder="Type your message..."
-              className="input input-bordered flex-1"
+              placeholder="Type a message..."
+              className="input input-bordered flex-1 rounded-full"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && newMessage.trim()) {
+                  sendMessage();
+                }
+              }}
             />
 
-            <button className="btn btn-secondary px-8" onClick={sendMessage}>
+            <button
+              className="btn btn-secondary rounded-full px-8"
+              disabled={!newMessage.trim()}
+              onClick={sendMessage}
+            >
               Send
             </button>
           </div>
