@@ -39,26 +39,30 @@ function Login() {
   };
 
   return (
-    <main data-theme="mytheme" className="min-h-screen bg-base-100 p-3 sm:p-6 flex flex-col lg:flex-row">
-      {/* Left Section - hidden on mobile */}
+    <main
+      data-theme="mytheme"
+      className="min-h-dvh bg-base-100 overflow-x-hidden flex flex-col lg:flex-row p-3 sm:p-6"
+    >
+      {/* Left Section */}
       <div className="hidden lg:flex lg:flex-1">
         <LoginLeftSide />
       </div>
 
       {/* Right Section */}
-      <section className="flex bg-base-200 rounded-[10px] p-4 py-8 flex-1 border border-base-300">
-        <article className="w-full flex flex-col gap-6 sm:gap-10">
+      <section className="flex flex-1 items-center justify-center">
+        <article className="w-full max-w-xl bg-base-200 rounded-xl border border-base-300 shadow-lg p-5 sm:p-8">
           {/* Login Header */}
-          <header className="text-center flex flex-col justify-center">
-            <h2 className="text-[28px] sm:text-[36px]">Welcome Back 👋</h2>
-            <p className="text-[#A9A9A9] text-base sm:text-xl tracking-wide sm:tracking-widest">
+          <header className="text-center flex flex-col justify-center mb-8">
+            <h2 className="text-3xl sm:text-4xl font-bold">Welcome Back 👋</h2>
+
+            <p className="text-base-content/60 text-base sm:text-lg mt-2">
               Login to your account
             </p>
           </header>
 
-          {/* Login Form */}
-          <form className="px-2 sm:px-6 md:px-12 lg:px-18 w-full flex flex-col gap-4">
-            {/* Form Fields */}
+          {/* Form */}
+          <form className="flex flex-col gap-5" onSubmit={onSubmitLogin}>
+            {/* Your fieldsets stay exactly the same */}
             <section className="w-full flex flex-col gap-6">
               <fieldset className="fieldset w-full">
                 <legend className="fieldset-legend text-lg">Email Id</legend>
@@ -77,6 +81,7 @@ function Login() {
                       stroke="currentColor"
                     >
                       <rect width="20" height="16" x="2" y="4" rx="2" />
+
                       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                     </g>
                   </svg>
@@ -113,6 +118,7 @@ function Login() {
                       stroke="currentColor"
                     >
                       <path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" />
+
                       <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" />
                     </g>
                   </svg>
@@ -132,6 +138,7 @@ function Login() {
                   >
                     {showPassword ? (
                       // Eye Off Icon
+
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -148,6 +155,7 @@ function Login() {
                       </svg>
                     ) : (
                       // Eye Icon
+
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -161,6 +169,7 @@ function Login() {
                           strokeLinejoin="round"
                           d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z"
                         />
+
                         <circle cx="12" cy="12" r="3" />
                       </svg>
                     )}
@@ -178,9 +187,8 @@ function Login() {
                 </p>
               </fieldset>
             </section>
-
             {/* Remember & Forgot Password */}
-            <nav className="flex flex-col xs:flex-row justify-between gap-2 xs:gap-0">
+            <div className="flex flex-col sm:flex-row justify-between gap-3">
               <label className="flex items-center gap-2">
                 <input type="checkbox" defaultChecked className="checkbox" />
                 <span>Remember me</span>
@@ -188,23 +196,21 @@ function Login() {
 
               <button
                 type="button"
-                className="text-secondary text-sm font-medium cursor-pointer underline-offset-2 hover:underline transition text-left"
+                className="text-secondary text-sm hover:underline"
               >
                 Forgot password?
               </button>
-            </nav>
-            <p className="text-red-500">{error}</p>
-            {/* Submit Button */}
-            <button
-              className="btn btn-primary h-[52px] mt-[20px]"
-              onClick={onSubmitLogin}
-            >
+            </div>
+
+            {error && <p className="text-error text-sm">{error}</p>}
+
+            <button type="submit" className="btn btn-primary h-12 mt-2">
               Login
             </button>
           </form>
 
           {/* Footer */}
-          <footer className="text-center">
+          <footer className="text-center mt-8">
             <p>
               Don't have an account?{" "}
               <span
