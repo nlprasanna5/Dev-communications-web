@@ -188,16 +188,16 @@ function Chat() {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-base-200 flex justify-center items-center p-4">
-      <div className="w-full max-w-4xl h-[80vh] bg-base-100 rounded-3xl shadow-2xl border border-base-300 overflow-hidden flex flex-col">
+    <div className="h-dvh bg-base-200 overflow-hidden flex justify-center items-center p-0 sm:p-4">
+      <div className="w-full max-w-4xl h-dvh sm:h-[80vh] bg-base-100 sm:rounded-3xl shadow-2xl border border-base-300 overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-base-300 bg-base-100 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-base-300 bg-base-100 flex items-center justify-between">
+          <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative">
               <img
                 src={targetUser?.photoUrl}
                 alt="profile"
-                className="w-12 h-12 rounded-full object-cover"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
               />
 
               <span
@@ -208,12 +208,12 @@ function Chat() {
             </div>
 
             <div>
-              <h2 className="font-bold text-lg">
-                {targetUser?.firstName + " " + targetUser?.lastName}
+              <h2 className="font-bold text-base sm:text-lg">
+                {targetUser?.firstName} {targetUser?.lastName}
               </h2>
 
               <p
-                className={`text-sm ${
+                className={`text-xs sm:text-sm ${
                   isTargetOnline ? "text-green-500" : "text-base-content/50"
                 }`}
               >
@@ -225,8 +225,8 @@ function Chat() {
 
         {/* Messages */}
         <div
-          className="flex-1 overflow-y-auto px-6 py-5 bg-base-200"
           ref={chatContainerRef}
+          className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 bg-base-200"
         >
           <div className="space-y-4">
             {messages.map((message, index) => {
@@ -240,7 +240,7 @@ function Chat() {
                   className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[75%] px-4 py-3 rounded-2xl shadow-md ${
+                    className={`max-w-[85%] sm:max-w-[75%] px-3 sm:px-4 py-2 sm:py-3 rounded-2xl shadow-md ${
                       isMe
                         ? "bg-secondary text-secondary-content rounded-br-md"
                         : "bg-base-100 border border-base-300 rounded-bl-md"
@@ -252,10 +252,12 @@ function Chat() {
                       </p>
                     )}
 
-                    <p className="break-words">{message.text}</p>
+                    <p className="break-words text-sm sm:text-base">
+                      {message.text}
+                    </p>
 
                     <div
-                      className={`text-[11px] mt-2 ${
+                      className={`text-[10px] sm:text-[11px] mt-2 ${
                         isMe
                           ? "text-right text-secondary-content/70"
                           : "text-right text-base-content/50"
@@ -263,22 +265,17 @@ function Chat() {
                     >
                       {formatTime(message.createdAt)}
                     </div>
-
-                    {/* {isMe && (
-                      <div className="text-[10px] text-right mt-1">
-                        {message.seen ? "Seen" : "Sent"}
-                      </div>
-                    )} */}
                   </div>
                 </div>
               );
             })}
           </div>
-          <div ref={messagesEndRef}></div>
+
+          <div ref={messagesEndRef} />
         </div>
 
         {error && (
-          <div className="px-4 pb-2">
+          <div className="px-3 sm:px-4 pb-2">
             <div className="alert alert-error">
               <span>{error}</span>
             </div>
@@ -286,8 +283,8 @@ function Chat() {
         )}
 
         {/* Input */}
-        <div className="border-t border-base-300 bg-base-100 p-4">
-          <div className="flex gap-3">
+        <div className="border-t border-base-300 bg-base-100 p-3 sm:p-4">
+          <div className="flex gap-2 sm:gap-3">
             <input
               type="text"
               placeholder="Type a message..."
@@ -302,7 +299,7 @@ function Chat() {
             />
 
             <button
-              className="btn btn-secondary rounded-full px-8"
+              className="btn btn-secondary rounded-full px-5 sm:px-8"
               disabled={!newMessage.trim()}
               onClick={sendMessage}
             >
