@@ -11,6 +11,7 @@ import { setOnlineUsers, updateUserStatus } from "../utils/onlineUserSlice";
 function Body() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+ 
 
   const userData = useSelector((store) => store.user);
   const [loading, setLoading] = useState(true);
@@ -21,7 +22,7 @@ function Body() {
         withCredentials: true,
       });
 
-      dispatch(addUser(res.data));
+      dispatch(addUser(res?.data?.data));
     } catch (err) {
       if (err.response?.status === 401) {
         navigate("/login");
@@ -33,11 +34,8 @@ function Body() {
   };
 
   useEffect(() => {
-    if (!userData) {
-      fetchUser();
-    } else {
-      setLoading(false);
-    }
+ 
+     fetchUser();
   }, []);
 
   // Connect socket once user is available
